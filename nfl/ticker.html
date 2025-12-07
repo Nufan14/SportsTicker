@@ -37,12 +37,12 @@
         top: 0;
         width: 300px;
         height: 50px;
-        background: #1a1a1a;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
         z-index: 100;
+        padding: 0;
+        overflow: hidden;
       }
 
       .sliding-content {
@@ -112,16 +112,31 @@
       }
 
       .brand-logo {
-        width: 30px;
-        height: 30px;
-        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
       }
 
       .brand-text {
-        font-size: 18px;
-        font-weight: bold;
+        display: none;
+      }
+
+      .sport-name {
+        font-size: 28px;
+        font-weight: 900;
+        color: #D50A0A;
+        letter-spacing: 3px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      }
+
+      .network-name {
+        font-size: 11px;
+        font-weight: 700;
         color: #fff;
-        line-height: 1.2;
+        letter-spacing: 2px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        margin-left: 2px;
       }
 
       /* Columns 2 & 3: Team sections */
@@ -431,8 +446,11 @@
   <body>
     <!-- Fixed Branding Column -->
     <div class="fixed-branding">
-      <img src="../assets/33115791.png" alt="SPORTSHEART" class="brand-logo" onerror="this.style.display='none'">
-      <div class="brand-text">SPORTSHEART<br>LIVE SPORTS</div>
+      <img src="../NFLonSNN.png" alt="SNN" class="brand-logo" onerror="this.style.display='none'">
+      <div class="brand-text">
+        <div class="sport-name">NFL</div>
+        <div class="network-name">ON SNN</div>
+      </div>
     </div>
 
     <!-- Sliding Content Container -->

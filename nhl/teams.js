@@ -391,7 +391,7 @@ function updatePreviews(styles) {
 function initializeCustomization() {
   const currentStyles = loadSavedStyles();
   const urlMode = isUrlParameterMode();
-  
+
   // Get control elements
   const bgColorPicker = document.getElementById('bg-color-picker');
   const bgColorHex = document.getElementById('bg-color-hex');
@@ -400,6 +400,12 @@ function initializeCustomization() {
   const textColorPicker = document.getElementById('text-color-picker');
   const textColorHex = document.getElementById('text-color-hex');
   const resetButton = document.getElementById('reset-styles');
+
+  // If elements don't exist (e.g., OBS embed page), just apply styles and return
+  if (!bgColorPicker || !bgColorHex || !bgOpacitySlider || !bgOpacityInput || !textColorPicker || !textColorHex) {
+    applyStylesToCards(currentStyles);
+    return;
+  }
 
   // If in URL parameter mode, disable all controls and show message
   if (urlMode) {

@@ -111,8 +111,17 @@
 
         // Filter to only include today's games
         const todaysGames = allGames.filter(game => {
-          const gameDate = game.gameDate || game.startTimeUTC.split('T')[0];
-          return gameDate === today;
+          // Convert UTC time to EST and extract date
+          if (game.gameDate) {
+            return game.gameDate === today;
+          }
+          // If no gameDate, convert startTimeUTC to EST date
+          const gameTimeEST = new Date(game.startTimeUTC).toLocaleString("en-US", { timeZone: "America/New_York" });
+          const gameDateEST = new Date(gameTimeEST);
+          const gameDateStr = gameDateEST.getFullYear() + "-" +
+                              String(gameDateEST.getMonth() + 1).padStart(2, "0") + "-" +
+                              String(gameDateEST.getDate()).padStart(2, "0");
+          return gameDateStr === today;
         });
 
         console.log(`Today's games: ${todaysGames.length}`);

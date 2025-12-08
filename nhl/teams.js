@@ -55,7 +55,32 @@ async function fetchTimeRemaining(gameId) {
 }
 
 async function buildGameCard(game) {
-  const { id: gameId, awayTeam, homeTeam, gameState, startTimeUTC, seriesStatus, clock, periodDescriptor } = game;
+  let { id: gameId, awayTeam, homeTeam, gameState, startTimeUTC, seriesStatus, clock, periodDescriptor } = game;
+
+  // For live games, fetch fresh data from gamecenter API
+  if (gameState === "LIVE" || gameState === "CRIT") {
+    try {
+      const liveRes = await fetch(`https://corsproxy.io/?url=https://api-web.nhle.com/v1/gamecenter/${gameId}/landing`);
+      const liveData = await liveRes.json();
+
+      // Update game data with live data
+      if (liveData.periodDescriptor) {
+        periodDescriptor = liveData.periodDescriptor;
+      }
+      if (liveData.clock) {
+        clock = liveData.clock;
+      }
+      if (liveData.awayTeam) {
+        awayTeam.score = liveData.awayTeam.score || awayTeam.score;
+      }
+      if (liveData.homeTeam) {
+        homeTeam.score = liveData.homeTeam.score || homeTeam.score;
+      }
+    } catch (err) {
+      console.error(`Error fetching live data for game ${gameId}:`, err);
+    }
+  }
+
   const awayLogo = await getLogoUrl(awayTeam.abbrev);
   const homeLogo = await getLogoUrl(homeTeam.abbrev);
 
@@ -92,8 +117,8 @@ async function buildGameCard(game) {
     ? `${getOrdinalSuffix(periodDescriptor.otPeriods)} OT`
     : `${getOrdinalSuffix(periodDescriptor.number)} Period`;
 
-  const timeRemaining = gameState === "LIVE" || gameState === "CRIT"
-    ? await fetchTimeRemaining(gameId)
+  const timeRemaining = (gameState === "LIVE" || gameState === "CRIT") && clock
+    ? (clock.inIntermission ? "End" : clock.timeRemaining || "00:00")
     : "00:00";
 
   if (["PRE", "FUT"].includes(gameState)) {

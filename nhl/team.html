@@ -100,10 +100,16 @@
       try {
         const res = await fetch(url);
         const data = await res.json();
-        const games = data.gameWeek?.[0]?.games || [];
+        const allGames = data.gameWeek?.flatMap(week => week.games) || [];
+
+        // Filter to only include today's games
+        const todaysGames = allGames.filter(game => {
+          const gameDate = game.gameDate || game.startTimeUTC.split('T')[0];
+          return gameDate === today;
+        });
 
         const container = document.getElementById("gameBlockContainer");
-        const game = games.find(
+        const game = todaysGames.find(
           g => g.awayTeam.abbrev === triCode || g.homeTeam.abbrev === triCode
         );
 

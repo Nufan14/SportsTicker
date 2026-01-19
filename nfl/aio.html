@@ -3,51 +3,90 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NFL Ticker</title>
+    <title>NFL Live Tracker</title>
     <link rel="stylesheet" href="style.css" />
     <style>
-        /* This forces the background to be empty so the autorun image shows through */
-        html, body {
-            background: none !important;
-            background-color: transparent !important;
+        /* Professional Light Theme */
+        body {
+            background: linear-gradient(135deg, #f0f2f5 0%, #ffffff 100%) !important;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
         }
-        #scoreboard, .games-container, #navbar-container {
+
+        #scoreboard {
             background: transparent !important;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        /* Make cards look professional on the dark stadium background */
+
+        /* Restoring the original headers with better spacing */
+        h2 {
+            color: #1a1a1a !important;
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-header {
+            background: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-top: 30px;
+            color: #333 !important;
+        }
+
+        /* Ensuring cards are visible and clean */
         .game-card, [class*="game-card"] { 
-            background: rgba(20, 20, 20, 0.9) !important; 
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: white !important;
+            background: #ffffff !important;
+            border: 1px solid #e1e4e8 !important;
+            border-radius: 12px !important;
+            color: #1a1a1a !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
+            transition: transform 0.2s;
         }
-        h2, h3, .section-header { color: white !important; }
-        #navbar-container, #footer-container, #ticker-button { display: none !important; }
+
+        /* Hide UI clutter for the TV ticker */
+        #navbar-container, #footer-container, #ticker-button, #ticker-speed, label {
+            display: none !important;
+        }
+
+        .no-games {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-style: italic;
+        }
     </style>
 </head>
-<body style="background: transparent !important;">
+<body>
     <div id="scoreboard">
-      <div id="live-section">
-        <h3 class="section-header">🔴 Live Games</h3>
-        <div id="liveGamesContainer" class="games-container"></div>
-      </div>
-      <div id="scheduled-section">
-        <h3 class="section-header">📅 Scheduled Games</h3>
-        <div id="scheduledGamesContainer" class="games-container"></div>
-      </div>
-      <div id="finished-section">
-        <h3 class="section-header">✅ Finished Games</h3>
-        <div id="finishedGamesContainer" class="games-container"></div>
-      </div>
+        <h2>All Games Today</h2>
+
+        <div id="live-section">
+            <h3 class="section-header">🔴 Live Games</h3>
+            <div id="liveGamesContainer" class="games-container"></div>
+            <div id="no-live-games" class="no-games">No live games at the moment</div>
+        </div>
+
+        <div id="scheduled-section">
+            <h3 class="section-header">📅 Scheduled Games</h3>
+            <div id="scheduledGamesContainer" class="games-container"></div>
+            <div id="no-scheduled-games" class="no-games">No scheduled games today</div>
+        </div>
+
+        <div id="finished-section">
+            <h3 class="section-header">✅ Finished Games</h3>
+            <div id="finishedGamesContainer" class="games-container"></div>
+            <div id="no-finished-games" class="no-games">No finished games today</div>
+        </div>
     </div>
 
+    <script src="navbarLoader.js"></script>
+    <script src="navbar.js"></script>
     <script src="aio.js"></script>
-    <script>
-        // THE NUCLEAR OPTION: If CSS fails, this JavaScript will kill the grey background
-        window.onload = function() {
-            document.body.style.backgroundColor = "transparent";
-            document.documentElement.style.backgroundColor = "transparent";
-        };
-    </script>
 </body>
 </html>

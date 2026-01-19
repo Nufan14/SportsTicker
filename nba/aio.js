@@ -2,8 +2,11 @@ const API_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/sc
 
 async function fetchNBAScores() {
     try {
+        console.log("Fetching NBA Scores...");
         const response = await fetch(API_URL);
         const data = await response.json();
+        
+        // Handle cases where events might be missing or empty
         const events = data.events || [];
 
         const liveContainer = document.getElementById('liveGamesContainer');
@@ -15,7 +18,7 @@ async function fetchNBAScores() {
         finishedContainer.innerHTML = '';
 
         if (events.length === 0) {
-            scheduledContainer.innerHTML = '<p class="no-games">No NBA games scheduled for today.</p>';
+            scheduledContainer.innerHTML = '<p class="no-games">🏀 No NBA games found in current API window. <br>Checking for upcoming night games...</p>';
             return;
         }
 
@@ -29,12 +32,12 @@ async function fetchNBAScores() {
 
             gameCard.innerHTML = `
                 <div class="team">
-                    <img src="${homeTeam.team.logo}" alt="${homeTeam.team.abbreviation}" width="30">
+                    <img src="${homeTeam.team.logo || ''}" alt="" width="30" onerror="this.style.display='none'">
                     <span>${homeTeam.team.displayName}</span>
                     <span class="score">${homeTeam.score}</span>
                 </div>
                 <div class="team">
-                    <img src="${awayTeam.team.logo}" alt="${awayTeam.team.abbreviation}" width="30">
+                    <img src="${awayTeam.team.logo || ''}" alt="" width="30" onerror="this.style.display='none'">
                     <span>${awayTeam.team.displayName}</span>
                     <span class="score">${awayTeam.score}</span>
                 </div>
@@ -46,13 +49,16 @@ async function fetchNBAScores() {
             else if (status === 'post') finishedContainer.appendChild(gameCard);
         });
 
-        if (!liveContainer.innerHTML) liveContainer.innerHTML = '<p class="no-games">No live games</p>';
-        if (!scheduledContainer.innerHTML) scheduledContainer.innerHTML = '<p class="no-games">No more scheduled</p>';
-        if (!finishedContainer.innerHTML) finishedContainer.innerHTML = '<p class="no-games">No finished games yet</p>';
+        // Fill empty sections with clean placeholders
+        if (liveContainer.children.length === 0) liveContainer.innerHTML = '<p class="no-games">No games live</p>';
+        if (scheduledContainer.children.length === 0) scheduledContainer.innerHTML = '<p class="no-games">No more scheduled</p>';
+        if (finishedContainer.children.length === 0) finishedContainer.innerHTML = '<p class="no-games">No results yet</p>';
 
     } catch (error) {
-        console.error("Error fetching NBA scores:", error);
+        console.error("NBA API Error:", error);
+        document.getElementById('scheduledGamesContainer').innerHTML = '<p class="no-games">⚠️ Error loading NBA data.</p>';
     }
 }
+
 fetchNBAScores();
 setInterval(fetchNBAScores, 60000);

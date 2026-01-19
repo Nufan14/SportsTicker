@@ -3,38 +3,38 @@
 <head>
     <meta charset="UTF-8" />
     <style>
-        /* PROFESSIONAL DARK THEME */
-        body { background: #1a1a1a; color: #e0e0e0; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 15px; overflow-x: hidden; }
-        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; opacity: 0.03; z-index: -1; pointer-events: none; filter: grayscale(100%) invert(1); }
+        /* COMPACT PRO DARK THEME */
+        body { background: #121212; color: #e0e0e0; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 8px; overflow: hidden; height: 100vh; }
+        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; opacity: 0.03; z-index: -1; pointer-events: none; filter: grayscale(100%) invert(1); }
         
-        #live-section { width: 100%; margin-bottom: 25px; }
-        .no-live-msg { background: #252525; color: #666; text-align: center; padding: 15px; border-radius: 6px; font-style: italic; font-size: 0.9rem; border: 1px dashed #333; }
+        #live-section { width: 100%; margin-bottom: 12px; }
+        .no-live-msg { background: #1a1a1a; color: #555; text-align: center; padding: 8px; border-radius: 4px; font-style: italic; font-size: 0.75rem; border: 1px dashed #333; }
         
-        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-bottom: 20px; }
-        .section-header { background: #000; color: #ffd700; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #333; }
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 12px; }
+        .section-header { background: #000; color: #ffd700; padding: 6px 0; text-align: center; margin-bottom: 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #333; }
 
-        /* Game Row Styling */
-        .game-row { background: #2a2a2a; display: flex; align-items: center; justify-content: space-between; padding: 8px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-size: 0.85rem; border: 1px solid #333; }
-        .row-status { width: 95px; font-size: 0.65rem; color: #ff4444; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
-        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; color: #fff; }
+        /* Slimmer Game Rows */
+        .game-row { background: #1e1e1e; display: flex; align-items: center; justify-content: space-between; padding: 5px 12px; margin-bottom: 3px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 0.75rem; border: 1px solid #2a2a2a; }
+        .row-status { width: 85px; font-size: 0.6rem; color: #ff4444; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.1; }
+        .team-box { display: flex; align-items: center; gap: 6px; flex: 1; font-weight: 600; color: #fff; }
         .team-box.home { justify-content: flex-end; text-align: right; }
         .team-box.away { justify-content: flex-start; text-align: left; }
-        .row-score { font-weight: 800; background: #111; color: #ffd700; padding: 4px 10px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #444; }
+        .row-score { font-weight: 800; background: #0a0a0a; color: #ffd700; padding: 2px 8px; border-radius: 3px; margin: 0 10px; min-width: 40px; text-align: center; border: 1px solid #333; }
 
-        /* STANDINGS STYLING */
-        .standings-wrapper { background: #252525; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); padding: 20px; border: 1px solid #333; }
-        .standings-grid { display: flex; gap: 40px; width: 100%; }
+        /* Compact Standings */
+        .standings-wrapper { background: #1a1a1a; border-radius: 6px; padding: 10px 15px; border: 1px solid #2a2a2a; }
+        .standings-grid { display: flex; gap: 20px; width: 100%; }
         .standings-col { flex: 1; }
         
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        th { border-bottom: 2px solid #444; padding: 8px; text-align: left; color: #888; font-size: 0.7rem; text-transform: uppercase; }
-        td { padding: 6px 8px; border-bottom: 1px solid #333; color: #ccc; }
-        .rank { width: 30px; font-weight: bold; color: #666; }
-        .team-cell { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #eee; }
-        .stat { text-align: center; width: 35px; color: #aaa; }
-        .pts { font-weight: bold; color: #fff; background: #333; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+        th { border-bottom: 1px solid #333; padding: 4px; text-align: left; color: #777; font-size: 0.65rem; text-transform: uppercase; }
+        td { padding: 3px 6px; border-bottom: 1px solid #222; color: #bbb; }
+        .rank { width: 20px; font-weight: bold; color: #555; }
+        .team-cell { display: flex; align-items: center; gap: 6px; font-weight: 600; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stat { text-align: center; width: 25px; color: #999; }
+        .pts { font-weight: bold; color: #fff; background: #2a2a2a; border-radius: 2px; width: 30px; }
         
-        img { filter: drop-shadow(0 0 2px rgba(0,0,0,0.5)); }
+        img { filter: drop-shadow(0 0 1px rgba(0,0,0,0.5)); }
     </style>
 </head>
 <body>
@@ -42,9 +42,7 @@
     
     <div id="live-section">
         <div class="section-header">🔴 Live Matches</div>
-        <div id="liveGames">
-            <div class="no-live-msg">No live games at the moment</div>
-        </div>
+        <div id="liveGames"><div class="no-live-msg">No live games at the moment</div></div>
     </div>
     
     <div class="columns-container">
@@ -53,7 +51,7 @@
     </div>
 
     <div class="standings-wrapper">
-        <div class="section-header" id="standings-title">League Standings</div>
+        <div class="section-header" id="standings-title" style="margin-bottom: 5px;">League Standings</div>
         <div class="standings-grid">
             <div class="standings-col">
                 <table>
@@ -80,7 +78,7 @@
                 document.getElementById('league-logo').src = logos[lId] || logos['eng.1'];
 
                 const now = new Date();
-                const start = new Date(now.getTime() - (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
+                const start = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
                 const end = new Date(now.getTime() + (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
 
                 const gRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${lId}/scoreboard?dates=${start}-${end}&limit=100&cb=${now.getTime()}`);
@@ -89,8 +87,7 @@
                 const sched = document.getElementById('scheduledGames');
                 const fin = document.getElementById('finishedGames');
                 
-                let hasLive = false;
-                let liveHTML = ''; 
+                let hasLive = false; let liveHTML = ''; 
                 sched.innerHTML = ''; fin.innerHTML = '';
 
                 if (gData.events) {
@@ -101,18 +98,18 @@
                         let lbl = e.status.type.shortDetail;
                         if (s === 'pre') {
                             const d = new Date(e.date);
-                            lbl = d.toLocaleDateString([], {month:'short', day:'numeric'}) + "<br>" + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
+                            lbl = d.toLocaleDateString([], {month:'short', day:'numeric'}) + " " + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
                         }
                         const html = `<div class="game-row">
                             <div class="row-status">${lbl}</div>
-                            <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="20"></div>
-                            <div class="row-score">${s === 'pre' ? 'VS' : home.score + ' - ' + away.score}</div>
-                            <div class="team-box away"><img src="${away.team.logo}" width="20"><span>${away.team.shortDisplayName || away.team.name}</span></div>
+                            <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="16"></div>
+                            <div class="row-score">${s === 'pre' ? 'VS' : home.score + '-' + away.score}</div>
+                            <div class="team-box away"><img src="${away.team.logo}" width="16"><span>${away.team.shortDisplayName || away.team.name}</span></div>
                         </div>`;
                         
                         if (s === 'in') { liveHTML += html; hasLive = true; }
-                        else if (s === 'post' && fin.children.length < 8) fin.innerHTML += html;
-                        else if (s === 'pre' && sched.children.length < 8) sched.innerHTML += html;
+                        else if (s === 'post' && fin.children.length < 7) fin.innerHTML += html;
+                        else if (s === 'pre' && sched.children.length < 7) sched.innerHTML += html;
                     });
                 }
                 live.innerHTML = hasLive ? liveHTML : '<div class="no-live-msg">No live games at the moment</div>';
@@ -128,19 +125,4 @@
                     const stats = e.stats;
                     const v = (n) => stats.find(x => x.name === n)?.value || 0;
                     const row = `<tr>
-                        <td class="rank">${i + 1}</td>
-                        <td><div class="team-cell"><img src="${e.team.logos[0].href}" width="18"> ${e.team.shortDisplayName || e.team.displayName}</div></td>
-                        <td class="stat">${v('gamesPlayed')}</td><td class="stat">${v('pointDifferential')}</td>
-                        <td class="stat pts">${v('points')}</td>
-                    </tr>`;
-                    if (i < 10) lBody.innerHTML += row;
-                    else rBody.innerHTML += row;
-                });
-                document.getElementById('standings-title').innerText = (sData.name || "League") + " Standings";
-            } catch (err) { console.error(err); }
-        }
-        update();
-        setInterval(update, 60000);
-    </script>
-</body>
-</html>
+                        <td

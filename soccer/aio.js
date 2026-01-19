@@ -1,12 +1,13 @@
 const params = new URLSearchParams(window.location.search);
 let leagueId = params.get('league') || 'eng.1';
 
+// Direct Logo Fix
 const logos = {
     'eng.1': 'https://logos-world.net/wp-content/uploads/2020/06/Premier-League-Logo-700x394.png',
-    'fra.1': 'https://1000logos.net/wp-content/uploads/2019/01/Ligue-1-Logo-2024.png',
-    'ger.1': 'https://1000logos.net/wp-content/uploads/2018/10/Bundesliga-Logo.png',
-    'esp.1': 'https://1000logos.net/wp-content/uploads/2018/10/La-Liga-Logo-2023.png',
-    'ita.1': 'https://1000logos.net/wp-content/uploads/2019/01/Serie-A-Logo.png'
+    'fra.1': 'https://logos-world.net/wp-content/uploads/2023/09/Ligue-1-Logo.png',
+    'ger.1': 'https://logos-world.net/wp-content/uploads/2023/03/Bundesliga-Logo.png',
+    'esp.1': 'https://logos-world.net/wp-content/uploads/2023/03/La-Liga-Logo.png',
+    'ita.1': 'https://logos-world.net/wp-content/uploads/2023/03/Serie-A-Logo.png'
 };
 
 async function fetchSoccer() {
@@ -14,7 +15,12 @@ async function fetchSoccer() {
         const logoImg = document.getElementById('league-logo');
         if (logoImg) logoImg.src = logos[leagueId] || logos['eng.1'];
 
-        const API_URL = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=20260115-20260122&limit=50`;
+        // DYNAMIC DATES: Automatically looks back 3 days and forward 3 days
+        const now = new Date();
+        const start = new Date(now.getTime() - (3 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
+        const end = new Date(now.getTime() + (3 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
+
+        const API_URL = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=${start}-${end}&limit=50`;
         const res = await fetch(API_URL);
         const data = await res.json();
         const events = data.events || [];
@@ -25,34 +31,26 @@ async function fetchSoccer() {
 
         live.innerHTML = ''; sched.innerHTML = ''; fin.innerHTML = '';
 
-        events.forEach((event, index) => {
+        events.forEach(event => {
             const status = event.status.type.state;
             const home = event.competitions[0].competitors[0];
             const away = event.competitions[0].competitors[1];
             
-            // Create Row
             const row = document.createElement('div');
             row.className = 'game-row';
-            
             row.innerHTML = `
                 <div class="row-status">${event.status.type.shortDetail}</div>
-                <div class="team-box home">
-                    <span class="team-name">${home.team.displayName}</span>
-                    <img src="${home.team.logo}" width="30">
-                </div>
+                <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="20"></div>
                 <div class="row-score">${home.score} - ${away.score}</div>
-                <div class="team-box away">
-                    <img src="${away.team.logo}" width="30">
-                    <span class="team-name">${away.team.displayName}</span>
-                </div>
+                <div class="team-box away"><img src="${away.team.logo}" width="20"><span>${away.team.shortDisplayName || away.team.name}</span></div>
             `;
 
-            // Append to correct section, limiting finished games to 10
             if (status === 'in') live.appendChild(row);
-            else if (status === 'pre') sched.appendChild(row);
-            else if (status === 'post' && fin.children.length < 10) fin.appendChild(row);
+            // Limit the columns to 8 items each to prevent cropping
+            else if (status === 'pre' && sched.children.length < 8) sched.appendChild(row);
+            else if (status === 'post' && fin.children.length < 8) fin.appendChild(row);
         });
-    } catch (e) { console.error("API Error:", e); }
+    } catch (e) { console.error(e); }
 }
 
 fetchSoccer();

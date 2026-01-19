@@ -3,47 +3,58 @@
 <head>
     <title>Basement TV Sports Ticker</title>
     <style>
-        :root { --accent: #e21c21; }
+        :root {
+            --accent: #e21c21;
+        }
 
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #111; font-family: 'Segoe UI', sans-serif; }
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            overflow: hidden; 
+            background: #f8f9fa; /* Fallback light color */
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+        }
         
-        /* This is the image that should show behind your games */
+        /* THE CLEAN BACKGROUND */
         #bg-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://images.unsplash.com/photo-1504450758481-7338eba7524a?q=80&w=2000');
-            background-size: cover;
-            background-position: center;
-            filter: blur(10px) brightness(0.2); /* Very dark so white text pops */
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: #f8f9fa; /* Clean light grey/white background */
             z-index: -1;
         }
 
+        /* Modern Header */
         #sport-header {
-            background: #000;
+            background: #1a1a1a;
             color: #fff;
-            padding: 15px;
+            padding: 18px;
             text-align: center;
-            font-size: 2rem;
-            font-weight: 800;
-            border-bottom: 4px solid var(--accent);
+            font-size: 2.2rem;
+            font-weight: 900;
+            border-bottom: 5px solid var(--accent);
             text-transform: uppercase;
-            position: relative;
-            z-index: 10;
+            letter-spacing: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .tv-frame {
             width: 100%;
-            height: calc(100vh - 80px);
+            height: calc(100vh - 85px);
             overflow: hidden;
             position: relative;
         }
 
         iframe { 
             width: 100%; 
-            height: 1000%; 
+            height: 1000%; /* Height for scrolling content */
             border: none; 
             position: absolute;
-            background: transparent !important;
+            top: 0;
+            transition: all 0.6s ease-in-out;
         }
     </style>
 </head>
@@ -51,32 +62,9 @@
     <div id="bg-overlay"></div>
     <div id="sport-header">LOADING...</div>
     <div class="tv-frame">
-        <iframe id="ticker-frame" src="nfl/aio.html" allowtransparency="true"></iframe>
+        <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
     </div>
 
     <script>
         const leagues = [
-            { name: "NFL Football", url: "nfl/aio.html", crop: "-130px" },
-            { name: "NBA Basketball", url: "nba/aio.html", crop: "-130px" },
-            { name: "Premier League", url: "soccer/aio.html?league=eng.1", crop: "-230px" },
-            { name: "Rugby: Top 14", url: "rugby/aio.html?league=fra.top_14", crop: "-230px" }
-        ];
-        
-        let currentIndex = 0;
-        const frame = document.getElementById('ticker-frame');
-        const header = document.getElementById('sport-header');
-
-        function cycleTicker() {
-            currentIndex = (currentIndex + 1) % leagues.length;
-            const current = leagues[currentIndex];
-            header.innerText = current.name;
-            frame.src = current.url;
-            frame.style.top = current.crop;
-        }
-
-        header.innerText = leagues[0].name;
-        frame.style.top = leagues[0].crop;
-        setInterval(cycleTicker, 20000); 
-    </script>
-</body>
-</html>
+            { name: "

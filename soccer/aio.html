@@ -6,43 +6,41 @@
     <link rel="stylesheet" href="../nfl/style.css" />
     <style>
         body { background-color: #f4f4f4 !important; margin: 0 !important; padding: 20px !important; }
-        #scoreboard { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; }
+        #scoreboard { position: relative; min-height: 800px; display: flex; flex-direction: column; align-items: center; }
         
-        /* Watermark Logo Styling */
         .centered-logo {
             position: absolute;
-            top: 150px;
-            width: 400px;
-            opacity: 0.10; /* Faint watermark effect */
-            z-index: -1;
+            top: 100px;
+            width: 450px;
+            opacity: 0.12;
+            z-index: 1; /* Keeping it behind the text but visible */
             pointer-events: none;
         }
-        .centered-logo img { width: 100%; height: auto; }
+        .centered-logo img { width: 100%; height: auto; display: block; }
 
-        /* Force hide any residual headers/navbars */
-        #navbar-container, header, .nav, .menu { display: none !important; }
+        #navbar-container, header, .nav, .menu, #all-games-header { display: none !important; }
         
         .section-header {
             color: #333 !important;
             text-align: center;
             width: 100%;
             margin: 20px 0;
-            background: rgba(244, 244, 244, 0.8) !important;
-            font-family: sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            background: rgba(244, 244, 244, 0.9) !important;
+            position: relative;
+            z-index: 10;
         }
+        .games-container { position: relative; z-index: 10; width: 100%; }
+        .no-games { text-align: center; color: #888; font-style: italic; z-index: 10; position: relative; }
     </style>
 </head>
 <body>
     <div id="scoreboard">
-        <div class="centered-logo" id="league-logo-container">
+        <div class="centered-logo">
             <img src="" id="league-logo" alt="">
         </div>
-
-        <div id="live-section"><h3 class="section-header">🔴 Live Matches</h3><div id="liveGamesContainer" class="games-container"></div></div>
-        <div id="scheduled-section"><h3 class="section-header">📅 Scheduled</h3><div id="scheduledGamesContainer" class="games-container"></div></div>
-        <div id="finished-section"><h3 class="section-header">✅ Finished</h3><div id="finishedGamesContainer" class="games-container"></div></div>
+        <div id="live-section"><h3 class="section-header">🔴 LIVE MATCHES</h3><div id="liveGamesContainer" class="games-container"></div></div>
+        <div id="scheduled-section"><h3 class="section-header">📅 SCHEDULED</h3><div id="scheduledGamesContainer" class="games-container"></div></div>
+        <div id="finished-section"><h3 class="section-header">✅ FINISHED</h3><div id="finishedGamesContainer" class="games-container"></div></div>
     </div>
     <script src="aio.js"></script>
 </body>

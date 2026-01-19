@@ -26,14 +26,13 @@
 
         iframe { 
             width: 114%; 
-            height: 400%; /* Massive height to ensure no bottom-cropping of results */
+            height: 400%; 
             border: none; 
             position: absolute;
-            top: -160px; /* Default starting crop */
             left: 0;
             transform: scale(0.88); 
             transform-origin: top center;
-            transition: top 0.3s ease-in-out; /* Smoothly adjust crop when sport changes */
+            transition: top 0.3s ease-in-out;
         }
     </style>
 </head>
@@ -52,4 +51,33 @@
             { name: "Ligue 1", url: "soccer/aio.html?league=fra.1", crop: "-265px" },
             { name: "Bundesliga", url: "soccer/aio.html?league=ger.1", crop: "-265px" },
             { name: "La Liga", url: "soccer/aio.html?league=esp.1", crop: "-265px" },
-            { name: "Serie A", url: "
+            { name: "Serie A", url: "soccer/aio.html?league=ita.1", crop: "-265px" },
+            { name: "Champions League", url: "soccer/uefa/live.html", crop: "-120px" }
+        ];
+        
+        let currentIndex = 0;
+        const frame = document.getElementById('ticker-frame');
+        const header = document.getElementById('sport-header');
+
+        function cycleTicker() {
+            // Move index forward
+            currentIndex = (currentIndex + 1) % leagues.length;
+            const currentSport = leagues[currentIndex];
+            
+            // Update UI
+            header.innerText = currentSport.name;
+            frame.src = currentSport.url;
+            frame.style.top = currentSport.crop;
+            
+            console.log("Showing: " + currentSport.name);
+        }
+
+        // Initialize first state
+        header.innerText = leagues[0].name;
+        frame.style.top = leagues[0].crop;
+
+        // Run cycle every 15 seconds
+        setInterval(cycleTicker, 15000); 
+    </script>
+</body>
+</html>

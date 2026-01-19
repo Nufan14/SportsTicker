@@ -3,56 +3,68 @@
 <head>
     <title>Basement TV Sports Ticker</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: black; font-family: sans-serif; }
+        :root {
+            --accent: #e21c21;
+            --bg-dark: #0a0a0a;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: var(--bg-dark); font-family: 'Segoe UI', Roboto, sans-serif; }
         
+        /* Modern Header Look */
         #sport-header {
-            background: #111;
+            background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
             color: #fff;
-            padding: 12px;
+            padding: 15px;
             text-align: center;
-            font-size: 1.8rem;
-            font-weight: bold;
-            border-bottom: 3px solid #e21c21;
+            font-size: 2rem;
+            font-weight: 800;
+            border-bottom: 4px solid var(--accent);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
         .tv-frame {
             width: 100%;
-            height: calc(100vh - 60px);
+            height: calc(100vh - 75px);
             overflow: hidden;
             position: relative;
+            background: var(--bg-dark);
         }
 
         iframe { 
-            width: 114%; 
+            width: 110%; 
             height: 400%; 
             border: none; 
             position: absolute;
-            left: 0;
-            transform: scale(0.88); 
+            left: -5%; /* Center the scaled content */
+            transform: scale(0.9); 
             transform-origin: top center;
-            transition: top 0.3s ease-in-out;
+            transition: all 0.5s ease-in-out;
         }
     </style>
 </head>
 <body>
-    <div id="sport-header">NFL FOOTBALL</div>
+    <div id="sport-header">LOADING TICKER...</div>
     <div class="tv-frame">
         <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
     </div>
 
     <script>
         const leagues = [
-            { name: "NFL Football", url: "nfl/aio.html", crop: "-160px" },
-            { name: "NHL Hockey", url: "nhl/aio.html", crop: "-160px" },
-            { name: "NBA Basketball", url: "nba/aio.html", crop: "-160px" },
-            { name: "Premier League", url: "soccer/aio.html?league=eng.1", crop: "-265px" },
-            { name: "Ligue 1", url: "soccer/aio.html?league=fra.1", crop: "-265px" },
-            { name: "Bundesliga", url: "soccer/aio.html?league=ger.1", crop: "-265px" },
-            { name: "La Liga", url: "soccer/aio.html?league=esp.1", crop: "-265px" },
-            { name: "Serie A", url: "soccer/aio.html?league=ita.1", crop: "-265px" },
-            { name: "Champions League", url: "soccer/uefa/live.html", crop: "-120px" }
+            { name: "NFL Football", url: "nfl/aio.html", crop: "-130px" },
+            { name: "NHL Hockey", url: "nhl/aio.html", crop: "-130px" },
+            { name: "NBA Basketball", url: "nba/aio.html", crop: "-130px" },
+            { name: "Premier League", url: "soccer/aio.html?league=eng.1", crop: "-230px" },
+            { name: "Ligue 1", url: "soccer/aio.html?league=fra.1", crop: "-230px" },
+            { name: "Bundesliga", url: "soccer/aio.html?league=ger.1", crop: "-230px" },
+            { name: "La Liga", url: "soccer/aio.html?league=esp.1", crop: "-230px" },
+            { name: "Serie A", url: "soccer/aio.html?league=ita.1", crop: "-230px" },
+            { name: "Rugby: Top 14", url: "rugby/aio.html?league=fra.top_14", crop: "-230px" },
+            { name: "Rugby: Champions Cup", url: "rugby/aio.html?league=epcr.champions", crop: "-230px" },
+            { name: "Champions League", url: "soccer/uefa/live.html", crop: "-80px" }
         ];
         
         let currentIndex = 0;
@@ -60,24 +72,25 @@
         const header = document.getElementById('sport-header');
 
         function cycleTicker() {
-            // Move index forward
             currentIndex = (currentIndex + 1) % leagues.length;
-            const currentSport = leagues[currentIndex];
+            const current = leagues[currentIndex];
             
-            // Update UI
-            header.innerText = currentSport.name;
-            frame.src = currentSport.url;
-            frame.style.top = currentSport.crop;
+            // Fade out effect
+            frame.style.opacity = 0;
             
-            console.log("Showing: " + currentSport.name);
+            setTimeout(() => {
+                header.innerText = current.name;
+                frame.src = current.url;
+                frame.style.top = current.crop;
+                frame.style.opacity = 1;
+            }, 500);
         }
 
-        // Initialize first state
+        // Init
         header.innerText = leagues[0].name;
         frame.style.top = leagues[0].crop;
-
-        // Run cycle every 15 seconds
-        setInterval(cycleTicker, 15000); 
+        
+        setInterval(cycleTicker, 20000); // 20 seconds is better for reading scores
     </script>
 </body>
 </html>

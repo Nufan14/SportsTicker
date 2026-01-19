@@ -6,53 +6,58 @@
     <title>NFL Ticker</title>
     <link rel="stylesheet" href="style.css" />
     <style>
-        /* This overrides the solid background that was hiding the logo */
         body { 
             background-color: #f4f4f4 !important; 
             margin: 0 !important;
             padding: 20px !important;
-        }
-
-        #scoreboard { 
-            position: relative !important; 
-            z-index: 10 !important; 
-            background: transparent !important; 
             min-height: 100vh;
         }
 
-        /* LOGO FIX: Moving it inside the scoreboard container */
-        .watermark-overlay {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 450px !important;
-            height: 450px !important;
-            background-image: url('nfl-logo.png') !important;
-            background-size: contain !important;
-            background-repeat: no-repeat !important;
-            background-position: center !important;
-            opacity: 0.4 !important; /* High visibility */
-            z-index: -1 !important; /* Sits behind the game boxes but inside the container */
-            pointer-events: none !important;
+        #scoreboard { 
+            position: relative; 
+            z-index: 10; 
+            background: transparent !important; 
         }
 
-        /* Hide Web UI elements for the TV */
+        /* NEW METHOD: Centered Image Tag */
+        .watermark-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            z-index: 1; /* Sits behind the text but above the body */
+            opacity: 0.3; /* Clearly visible but transparent enough for text */
+            pointer-events: none;
+        }
+
+        .watermark-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Ensuring text stays readable */
+        .section-header {
+            position: relative;
+            z-index: 20;
+            background: rgba(244, 244, 244, 0.8) !important;
+            padding: 5px 10px;
+            display: inline-block;
+        }
+
+        /* Hide Web UI */
         #navbar-container, #footer-container, #ticker-button, #ticker-speed, label { 
             display: none !important; 
-        }
-
-        .section-header {
-            background: rgba(255, 255, 255, 0.7) !important;
-            padding: 5px 15px !important;
-            border-radius: 8px !important;
         }
     </style>
 </head>
 <body>
-    <div id="scoreboard">
-        <div class="watermark-overlay"></div>
+    <div class="watermark-container">
+        <img src="nfl-logo.png" alt="NFL Logo">
+    </div>
 
+    <div id="scoreboard">
         <div id="live-section">
             <h3 class="section-header" style="color: #333 !important;">🔴 Live Games</h3>
             <div id="liveGamesContainer" class="games-container"></div>

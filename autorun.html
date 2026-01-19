@@ -1,30 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Basement Sports Ticker - AIO Mode</title>
+    <title>Basement TV Sports Ticker</title>
     <style>
+        /* Black background and no scrolling for a clean TV look */
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: black; }
+        
+        /* The Window: This hides the website headers and buttons */
+        .tv-window {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
         iframe { 
             width: 100%; 
-            height: 100%; 
+            height: 140%; /* Extra height to allow shifting up */
             border: none; 
-            /* If the content is too long, this allows it to scroll internally 
-               but keeps the main page locked for Yodeck */
-            overflow-y: auto; 
+            position: absolute;
+            /* SHIFT UP: This hides the navbar and soccer league buttons */
+            /* If it cuts off too much or too little, adjust this number */
+            top: -115px; 
+            left: 0;
+            /* SCALE: Shrinks the content to fit more games on the screen */
+            transform: scale(0.9); 
+            transform-origin: top center;
         }
     </style>
 </head>
 <body>
-    <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
+    <div class="tv-window">
+        <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
+    </div>
 
     <script>
         const leagues = [
             "nfl/aio.html",
             "nhl/aio.html",
             "nba/aio.html",
-            "mlb/aio.html",
-            "soccer/aio.html",
-            "soccer/uefa.champions/aio.html" // Direct path to Soccer sub-tab
+            "f1/aio.html",
+            "soccer/aio.html?league=eng.1", // Premier League
+            "soccer/aio.html?league=fra.1", // Ligue 1
+            "soccer/aio.html?league=ger.1", // Bundesliga
+            "soccer/aio.html?league=esp.1", // La Liga
+            "soccer/aio.html?league=ita.1", // Serie A
+            "soccer/uefa/aio.html"          // Champions League
         ];
         
         let currentIndex = 0;
@@ -33,9 +54,10 @@
         function cycleTicker() {
             currentIndex = (currentIndex + 1) % leagues.length;
             frame.src = leagues[currentIndex];
+            console.log("Now showing: " + leagues[currentIndex]);
         }
 
-        // Keeping it at 15s for your test
+        // 15 seconds for testing; change to 60000 (1 min) later
         setInterval(cycleTicker, 15000); 
     </script>
 </body>

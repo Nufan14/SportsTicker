@@ -3,41 +3,53 @@
 <head>
     <meta charset="UTF-8" />
     <style>
-        body { background: #f0f0f0; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
-        #scoreboard { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 20px; overflow-x: hidden; }
         
+        /* The Fixed Watermark Logo */
         .centered-logo {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 400px; opacity: 0.07; z-index: -1;
+            width: 500px; opacity: 0.05; z-index: -1; pointer-events: none;
         }
 
         .section-header { 
-            width: 90%; background: #333; color: white; padding: 8px; 
-            text-align: center; margin: 10px 0; border-radius: 4px; font-size: 0.9rem;
+            width: 100%; background: #222; color: #fff; padding: 10px 0; 
+            text-align: center; margin: 25px 0 10px 0; border-radius: 5px; 
+            font-size: 1.2rem; font-weight: bold; letter-spacing: 1px;
         }
 
+        .games-container { width: 100%; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+        /* The Horizontal Row Fix */
         .game-row {
-            width: 95%; background: white; margin-bottom: 4px; display: grid;
-            grid-template-columns: 80px 1fr 80px 1fr; align-items: center;
-            padding: 8px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            width: 95%; max-width: 1000px; background: white; 
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .row-status { font-size: 0.75rem; color: #666; font-weight: bold; }
-        .row-team { display: flex; align-items: center; font-weight: 500; font-size: 1rem; }
-        .row-team.home { justify-content: flex-end; gap: 10px; }
-        .row-team.away { justify-content: flex-start; gap: 10px; }
-        .row-score { background: #eee; text-align: center; font-weight: bold; padding: 2px 8px; border-radius: 3px; margin: 0 10px; }
+        .row-status { width: 80px; font-size: 0.85rem; color: #cc0000; font-weight: bold; }
         
-        .games-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .team-box { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .team-box.home { justify-content: flex-end; text-align: right; }
+        .team-box.away { justify-content: flex-start; text-align: left; }
+        
+        .team-name { font-size: 1.1rem; font-weight: 600; color: #333; }
+        .row-score { 
+            width: 100px; text-align: center; font-size: 1.4rem; font-weight: 800; 
+            background: #eee; padding: 5px; border-radius: 5px; margin: 0 20px;
+        }
     </style>
 </head>
 <body>
-    <div id="scoreboard">
-        <img src="" id="league-logo" class="centered-logo">
-        <div class="section-header">🔴 LIVE</div>
+    <img src="" id="league-logo" class="centered-logo">
+    <div id="live-section">
+        <div class="section-header">🔴 LIVE MATCHES</div>
         <div id="liveGamesContainer" class="games-container"></div>
-        <div class="section-header">📅 UPCOMING</div>
+    </div>
+    <div id="scheduled-section">
+        <div class="section-header">📅 UPCOMING FIXTURES</div>
         <div id="scheduledGamesContainer" class="games-container"></div>
+    </div>
+    <div id="finished-section">
         <div class="section-header">✅ RECENT RESULTS</div>
         <div id="finishedGamesContainer" class="games-container"></div>
     </div>

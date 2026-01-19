@@ -99,8 +99,8 @@
                             <div class="team-box away"><img src="${a.team.logo}" width="18"><span>${a.team.shortDisplayName || a.team.name}</span></div>
                         </div>`;
                         if (s === 'in') live.innerHTML += html;
-                        else if (s === 'post' && fin.children.length < 9) fin.innerHTML += html;
-                        else if (s === 'pre' && sched.children.length < 9) sched.innerHTML += html;
+                        else if (s === 'post' && fin.children.length < 10) fin.innerHTML += html;
+                        else if (s === 'pre' && sched.children.length < 10) sched.innerHTML += html;
                     });
                 }
                 document.getElementById('live-section').style.display = live.innerHTML ? 'block' : 'none';

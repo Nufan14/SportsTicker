@@ -26,12 +26,12 @@
         }
 
         iframe { 
-            width: 110%; /* Back to original crop width */
+            width: 110%; 
             height: 400%; 
             border: none; 
             position: absolute;
             left: -5%;
-            transform: scale(0.9); /* Back to original zoom */
+            transform: scale(0.9); 
             transform-origin: top center;
             transition: all 0.5s ease-in-out;
         }
@@ -45,7 +45,7 @@
 
     <script>
         const leagues = [
-            { name: "NFL Football", url: "nfl/aio.html", crop: "-130px" },
+            { name: "NFL Football", url: "nfl/aio.html", crop: "0px" },
             { name: "NHL Hockey", url: "nhl/aio.html", crop: "-130px" },
             { name: "NBA Basketball", url: "nba/aio.html", crop: "-130px" },
             { name: "Premier League", url: "soccer/aio.html?league=eng.1", crop: "-230px" },
@@ -72,11 +72,8 @@
             }, 500);
         }
 
-        // Set initial state
         header.innerText = leagues[0].name;
         frame.style.top = leagues[0].crop;
-        
-        // Start cycling
         setInterval(cycleTicker, 20000); 
     </script>
 </body>

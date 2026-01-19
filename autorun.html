@@ -3,61 +3,47 @@
 <head>
     <title>Basement TV Sports Ticker</title>
     <style>
-        :root { --accent: #e21c21; }
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #f4f4f4; font-family: 'Segoe UI', sans-serif; }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #f4f4f4; }
         
-        #sport-header {
-            background: #000;
-            color: #fff;
-            padding: 18px;
-            text-align: center;
-            font-size: 2.2rem;
-            font-weight: 900;
-            border-bottom: 5px solid var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 4px;
-        }
-
         .tv-frame {
             width: 100%;
-            height: calc(100vh - 85px);
+            height: 100vh; /* Now uses the full screen height */
             overflow: hidden;
             position: relative;
         }
 
         iframe { 
             width: 110%; 
-            height: 400%; 
+            height: 500%; 
             border: none; 
             position: absolute;
             left: -5%;
-            transform: scale(0.9); 
+            transform: scale(0.95); /* Slightly larger scale since header is gone */
             transform-origin: top center;
             transition: opacity 0.5s ease-in-out;
         }
     </style>
 </head>
 <body>
-    <div id="sport-header">LOADING...</div>
     <div class="tv-frame">
         <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
     </div>
 
     <script>
         const leagues = [
-            { name: "NFL Football", url: "nfl/aio.html", crop: "0px" },
-            { name: "NHL Hockey", url: "nhl/aio.html", crop: "-130px" },
-            { name: "NBA Basketball", url: "nba/aio.html", crop: "-130px" },
-            { name: "Premier League", url: "soccer/aio.html?league=eng.1", crop: "-230px" },
-            { name: "Ligue 1", url: "soccer/aio.html?league=fra.1", crop: "-230px" },
-            { name: "Bundesliga", url: "soccer/aio.html?league=ger.1", crop: "-230px" },
-            { name: "La Liga", url: "soccer/aio.html?league=esp.1", crop: "-230px" },
-            { name: "Serie A", url: "soccer/aio.html?league=ita.1", crop: "-230px" }
+            { url: "nfl/aio.html", crop: "0px" },
+            { url: "nhl/aio.html", crop: "0px" },
+            { url: "nba/aio.html", crop: "0px" },
+            { url: "rugby/aio.html", crop: "0px" },
+            { url: "soccer/aio.html?league=eng.1", crop: "0px" },
+            { url: "soccer/aio.html?league=fra.1", crop: "0px" },
+            { url: "soccer/aio.html?league=ger.1", crop: "0px" },
+            { url: "soccer/aio.html?league=esp.1", crop: "0px" },
+            { url: "soccer/aio.html?league=ita.1", crop: "0px" }
         ];
         
         let currentIndex = 0;
         const frame = document.getElementById('ticker-frame');
-        const header = document.getElementById('sport-header');
 
         function cycleTicker() {
             currentIndex = (currentIndex + 1) % leagues.length;
@@ -65,15 +51,12 @@
             
             frame.style.opacity = 0;
             setTimeout(() => {
-                header.innerText = current.name;
                 frame.src = current.url;
                 frame.style.top = current.crop;
                 frame.style.opacity = 1;
             }, 500);
         }
 
-        header.innerText = leagues[0].name;
-        frame.style.top = leagues[0].crop;
         setInterval(cycleTicker, 20000); 
     </script>
 </body>

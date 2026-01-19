@@ -12,22 +12,10 @@
             padding: 0; 
             height: 100%; 
             overflow: hidden; 
-            background: #f8f9fa; /* Fallback light color */
+            background: #f4f4f4; 
             font-family: 'Segoe UI', Roboto, sans-serif; 
         }
         
-        /* THE CLEAN BACKGROUND */
-        #bg-overlay {
-            position: fixed;
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
-            background: #f8f9fa; /* Clean light grey/white background */
-            z-index: -1;
-        }
-
-        /* Modern Header */
         #sport-header {
             background: #1a1a1a;
             color: #fff;
@@ -38,7 +26,7 @@
             border-bottom: 5px solid var(--accent);
             text-transform: uppercase;
             letter-spacing: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         .tv-frame {
@@ -50,16 +38,16 @@
 
         iframe { 
             width: 100%; 
-            height: 1000%; /* Height for scrolling content */
+            height: 1000%; 
             border: none; 
             position: absolute;
             top: 0;
-            transition: all 0.6s ease-in-out;
+            left: 0;
+            transition: opacity 0.5s ease-in-out;
         }
     </style>
 </head>
 <body>
-    <div id="bg-overlay"></div>
     <div id="sport-header">LOADING...</div>
     <div class="tv-frame">
         <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
@@ -67,4 +55,10 @@
 
     <script>
         const leagues = [
-            { name: "
+            { name: "NFL Football", url: "nfl/aio.html", crop: "-130px" },
+            { name: "NHL Hockey", url: "nhl/aio.html", crop: "-130px" },
+            { name: "NBA Basketball", url: "nba/aio.html", crop: "-130px" },
+            { name: "Premier League", url: "soccer/aio.html?league=eng.1", crop: "-230px" },
+            { name: "Ligue 1", url: "soccer/aio.html?league=fra.1", crop: "-230px" },
+            { name: "Bundesliga", url: "soccer/aio.html?league=ger.1", crop: "-230px" },
+            { name:

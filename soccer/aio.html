@@ -2,59 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Soccer Ticker</title>
     <style>
-        body { background: #f4f4f4; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; }
-        .main-container { max-width: 1100px; margin: 0 auto; }
-        
-        .header { 
-            background: #222; color: white; padding: 10px; text-align: center; 
-            border-radius: 4px; margin: 20px 0 10px; font-weight: bold; font-size: 0.9rem;
-        }
-
-        /* 2 Column Grid for the bottom half */
-        .split-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-        .game-card {
-            background: white; border: 1px solid #ddd; border-radius: 8px; 
-            margin-bottom: 10px; padding: 12px; display: flex; flex-direction: column;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .row-main { display: flex; align-items: center; justify-content: space-between; }
-        
-        .team-box { width: 40%; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        body { background: #f4f4f4; font-family: sans-serif; margin: 0; padding: 15px; }
+        .wrapper { max-width: 1100px; margin: 0 auto; }
+        .header { background: #222; color: #fff; padding: 10px; text-align: center; border-radius: 4px; margin: 15px 0; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+        .card { background: #fff; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .row { display: flex; align-items: center; justify-content: space-between; }
+        .team { width: 40%; display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 0.9rem; }
         .home { justify-content: flex-end; text-align: right; }
         .away { justify-content: flex-start; text-align: left; }
-        
-        .score-box { 
-            background: #333; color: white; padding: 4px 10px; border-radius: 4px; 
-            font-weight: bold; min-width: 55px; text-align: center; font-family: monospace; 
-        }
-        
-        .status-text { font-size: 0.75rem; color: #cc0000; font-weight: bold; width: 60px; }
-        
-        .goal-scorers { 
-            font-size: 0.75rem; color: #666; margin-top: 8px; padding-top: 8px; 
-            border-top: 1px solid #eee; font-style: italic; 
-        }
-
-        @media (max-width: 800px) { .split-columns { grid-template-columns: 1fr; } }
+        .score { background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold; min-width: 45px; text-align: center; }
+        .stat { font-size: 0.7rem; color: #c00; font-weight: bold; width: 55px; }
+        .goals { font-size: 0.7rem; color: #666; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; font-style: italic; }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <div id="live-header" class="header">🔴 LIVE MATCHES</div>
-        <div id="live-area"></div>
+    <div class="wrapper">
+        <div id="live-box" style="display:none;">
+            <div class="header">🔴 LIVE MATCHES</div>
+            <div id="live-list"></div>
+        </div>
 
-        <div class="split-columns">
+        <div class="grid">
             <div>
                 <div class="header">✅ RECENT RESULTS</div>
-                <div id="results-area"></div>
+                <div id="res-list"></div>
             </div>
             <div>
-                <div class="header">📅 UPCOMING FIXTURES</div>
-                <div id="upcoming-area"></div>
+                <div class="header">📅 UPCOMING</div>
+                <div id="up-list"></div>
             </div>
         </div>
     </div>

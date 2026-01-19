@@ -4,23 +4,40 @@
     <meta charset="UTF-8" />
     <style>
         body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow: hidden; }
-        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; opacity: 0.05; z-index: -1; pointer-events: none; }
         
-        #live-section { width: 100%; margin-bottom: 20px; display: none; }
-        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
-        .section-header { background: #222; color: #fff; padding: 8px 0; text-align: center; margin-bottom: 10px; border-radius: 4px; font-size: 1rem; font-weight: bold; text-transform: uppercase; }
-
-        /* Restored "Good Layout" Row Style */
-        .game-row { 
-            background: white; display: flex; align-items: center; 
-            justify-content: space-between; padding: 10px 15px; 
-            margin-bottom: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .centered-logo {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 450px; opacity: 0.05; z-index: -1; pointer-events: none;
         }
-        .row-status { width: 50px; font-size: 0.75rem; color: #cc0000; font-weight: bold; }
-        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
+
+        #live-section { width: 100%; margin-bottom: 20px; display: none; }
+        
+        .columns-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .section-header { 
+            background: #222; color: #fff; padding: 8px 0; 
+            text-align: center; margin-bottom: 10px; border-radius: 4px; 
+            font-size: 1rem; font-weight: bold; text-transform: uppercase;
+        }
+
+        /* RESTORED HORIZONTAL ROW STYLE */
+        .game-row {
+            background: white; display: flex; align-items: center; 
+            justify-content: space-between; padding: 8px 15px; 
+            margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+        }
+
+        .row-status { width: 45px; font-size: 0.75rem; color: #cc0000; font-weight: bold; }
+        .team-box { display: flex; align-items: center; gap: 8px; flex: 1; }
         .team-box.home { justify-content: flex-end; text-align: right; }
         .team-box.away { justify-content: flex-start; text-align: left; }
-        .row-score { font-weight: 800; background: #eee; padding: 4px 10px; border-radius: 4px; margin: 0 15px; min-width: 45px; text-align: center; font-size: 1rem; }
+        .row-score { font-weight: 800; background: #eee; padding: 2px 8px; border-radius: 4px; margin: 0 10px; min-width: 40px; text-align: center; }
     </style>
 </head>
 <body>
@@ -56,10 +73,11 @@
 
         async function fetchSoccer() {
             try {
-                document.getElementById('league-logo').src = logos[leagueId] || logos['eng.1'];
+                const logoImg = document.getElementById('league-logo');
+                if (logoImg) logoImg.src = logos[leagueId] || logos['eng.1'];
 
                 const now = new Date();
-                // 10 days before, 10 days after logic
+                // User Requested: 10 days before, 10 days after
                 const start = new Date(now.getTime() - (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
                 const end = new Date(now.getTime() + (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
 
@@ -73,4 +91,34 @@
                 live.innerHTML = ''; sched.innerHTML = ''; fin.innerHTML = '';
 
                 if (data.events) {
-                    data.events.
+                    data.events.forEach(event => {
+                        const status = event.status.type.state;
+                        const comp = event.competitions[0];
+                        const home = comp.competitors[0];
+                        const away = comp.competitors[1];
+                        
+                        const rowHtml = `
+                            <div class="game-row">
+                                <div class="row-status">${event.status.type.shortDetail}</div>
+                                <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="20"></div>
+                                <div class="row-score">${status === 'pre' ? 'VS' : home.score + ' - ' + away.score}</div>
+                                <div class="team-box away"><img src="${away.team.logo}" width="20"><span>${away.team.shortDisplayName || away.team.name}</span></div>
+                            </div>`;
+
+                        if (status === 'in') live.innerHTML += rowHtml;
+                        else if (status === 'post' && fin.children.length < 10) fin.innerHTML += rowHtml;
+                        else if (status === 'pre' && sched.children.length < 10) sched.innerHTML += rowHtml;
+                    });
+                }
+
+                // Title will only show if there are live games
+                document.getElementById('live-section').style.display = live.innerHTML ? 'block' : 'none';
+
+            } catch (e) { console.error("Error:", e); }
+        }
+
+        fetchSoccer();
+        setInterval(fetchSoccer, 60000);
+    </script>
+</body>
+</html>

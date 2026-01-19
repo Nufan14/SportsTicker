@@ -1,55 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <style>
-        body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 15px; }
-        .container { max-width: 1100px; margin: 0 auto; }
+        body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow: hidden; }
         
+        /* Background Logo */
+        .centered-logo {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 450px; opacity: 0.05; z-index: -1; pointer-events: none;
+        }
+
+        /* Full Width Top Section */
+        #live-section { width: 100%; margin-bottom: 20px; }
+        
+        /* Two Column Layout */
+        .columns-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 50/50 split */
+            gap: 20px;
+            width: 100%;
+        }
+
         .section-header { 
             background: #222; color: #fff; padding: 8px 0; 
-            text-align: center; margin: 15px 0 10px; border-radius: 4px; 
+            text-align: center; margin-bottom: 10px; border-radius: 4px; 
             font-size: 1rem; font-weight: bold; text-transform: uppercase;
         }
 
-        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-
+        /* Compact Rows for Columns */
         .game-row {
-            background: white; display: flex; flex-direction: column; 
-            margin-bottom: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: white; display: flex; align-items: center; 
+            justify-content: space-between; padding: 8px 15px; 
+            margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
         }
 
-        .row-main { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; }
-        .row-status { width: 55px; font-size: 0.7rem; color: #cc0000; font-weight: bold; }
-        .team-box { display: flex; align-items: center; gap: 8px; flex: 1; font-weight: 600; }
+        .row-status { width: 45px; font-size: 0.75rem; color: #cc0000; font-weight: bold; }
+        .team-box { display: flex; align-items: center; gap: 8px; flex: 1; }
         .team-box.home { justify-content: flex-end; text-align: right; }
         .team-box.away { justify-content: flex-start; text-align: left; }
-        .row-score { font-weight: 800; background: #eee; padding: 2px 10px; border-radius: 4px; margin: 0 10px; min-width: 45px; text-align: center; }
-
-        .scorers-box {
-            background: #fafafa; font-size: 0.7rem; color: #555;
-            padding: 5px 15px; border-top: 1px solid #eee; font-style: italic;
-        }
+        .row-score { font-weight: 800; background: #eee; padding: 2px 8px; border-radius: 4px; margin: 0 10px; min-width: 40px; text-align: center; }
+        
+        .games-container { display: flex; flex-direction: column; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="live-section">
-            <div class="section-header">🔴 Live Matches</div>
-            <div id="live-area"></div>
-        </div>
+    <img src="" id="league-logo" class="centered-logo">
+    
+    <div id="live-section">
+        <div class="section-header">🔴 Live Matches</div>
+        <div id="liveGamesContainer" class="games-container"></div>
+    </div>
 
-        <div class="columns-container">
-            <div>
-                <div class="section-header">✅ Recent Results</div>
-                <div id="results-area"></div>
-            </div>
-            <div>
-                <div class="section-header">📅 Upcoming Fixtures</div>
-                <div id="upcoming-area"></div>
-            </div>
+    <div class="columns-container">
+        <div>
+            <div class="section-header">✅ Recent Results</div>
+            <div id="finishedGamesContainer" class="games-container"></div>
+        </div>
+        <div>
+            <div class="section-header">📅 Upcoming Fixtures</div>
+            <div id="scheduledGamesContainer" class="games-container"></div>
         </div>
     </div>
+
     <script src="aio.js"></script>
 </body>
 </html>

@@ -2,28 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NHL Ticker</title>
-    <link rel="stylesheet" href="../nfl/style.css" />
     <style>
-        body { background-color: #f4f4f4 !important; margin: 0 !important; padding: 20px !important; }
-        #scoreboard { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; }
-        .centered-logo { position: absolute; top: 180px; width: 450px; opacity: 0.12; z-index: -1; pointer-events: none; }
-        .centered-logo img { width: 100%; height: auto; }
-        #navbar-container, #footer-container, #ticker-button, #ticker-speed, label, .navbar { display: none !important; }
-        .section-header { color: #333 !important; text-align: center; width: 100%; margin: 20px 0; background: rgba(244, 244, 244, 0.8) !important; }
-        .no-games { color: #888; font-style: italic; text-align: center; width: 100%; padding: 20px; }
+        /* RESTORED LIGHT MODE - NHL SPECIFIC */
+        body { background: #f4f4f4; color: #333; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 15px; overflow-x: hidden; }
+        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; opacity: 0.05; z-index: -1; pointer-events: none; filter: grayscale(100%); }
+        
+        #live-section { width: 100%; margin-bottom: 25px; }
+        .section-header { background: #222; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .no-live-msg { background: #fff; color: #888; text-align: center; padding: 15px; border-radius: 6px; font-style: italic; font-size: 0.9rem; border: 1px dashed #ddd; }
+        
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-bottom: 20px; }
+
+        .game-row { background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 8px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 0.85rem; }
+        .row-status { width: 95px; font-size: 0.65rem; color: #cc0000; font-weight: bold; text-transform: uppercase; text-align: left; }
+        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; color: #111; }
+        .team-box.home { justify-content: flex-end; text-align: right; }
+        .row-score { font-weight: 800; background: #f0f0f0; color: #000; padding: 4px 10px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
+
+        .standings-wrapper { background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 20px; }
+        .standings-grid { display: flex; gap: 40px; width: 100%; }
+        .standings-col { flex: 1; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { border-bottom: 2px solid #eee; padding: 8px; text-align: left; color: #888; font-size: 0.7rem; text-transform: uppercase; }
+        td { padding: 6px 8px; border-bottom: 1px solid #f9f9f9; color: #444; }
+        .rank { width: 30px; font-weight: bold; color: #aaa; }
+        .team-cell { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #111; }
+        .stat { text-align: center; width: 35px; color: #777; }
+        .pts { font-weight: bold; color: #000; background: #f8f8f8; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div id="scoreboard">
-        <div class="centered-logo">
-            <img src="https://upload.wikimedia.org/wikipedia/en/3/3a/05_NHL_Shield.svg" alt="NHL Logo">
-        </div>
-        <div id="live-section"><h3 class="section-header">🔴 Live Games</h3><div id="liveGamesContainer" class="games-container"></div></div>
-        <div id="scheduled-section"><h3 class="section-header">📅 Scheduled Games</h3><div id="scheduledGamesContainer" class="games-container"></div></div>
-        <div id="finished-section"><h3 class="section-header">✅ Finished Games</h3><div id="finishedGamesContainer" class="games-container"></div></div>
+    <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/nhl.png" id="league-logo" class="centered-logo">
+    <div id="live-section">
+        <div class="section-header">🏒 NHL Live Games</div>
+        <div id="liveGames"><div class="no-live-msg">No games in progress</div></div>
     </div>
-    <script src="aio.js"></script>
-</body>
-</html>
+    <div class="columns-container">
+        <div><div class="section-header">Recent Results</div><div id="finishedGames"></div></div>
+        <div><div class="section-header">Upcoming Games</div><div id="scheduledGames"></div></div>
+    </div>
+    <div class="standings-wrapper">
+        <div class="section-header" id="standings-title">NHL Standings</div>
+        <div class="standings-grid">
+            <div class="standings-col">
+                <div style="font-size:0.7rem; font-weight:bold; color:#888; margin-bottom:5px;">EASTERN CONFERENCE</div>
+                <table><thead><tr><th class="rank">#</th><th>Team</th><th class="stat">GP</th><th class="stat">W</th><th class="stat">L</th><th class="stat">OTL</th><th class="stat pts">PTS</th></tr></thead><tbody id="sLeft"></tbody></table>
+            </div>
+            <div class="standings-col">
+                <div style="font-size:0.7rem; font-weight:bold; color:#888; margin-bottom:5px;">WESTERN CONFERENCE</div>
+                <table><thead><tr><th class="rank">#</th><th>Team</th><th class="stat">GP</th><th class="stat">W</th><th class="stat">L</th><th class="stat">OTL</th><th class="stat pts">PTS</th></tr></thead><tbody id="sRight"></tbody></table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function update() {
+            try {
+                const ts = Date.now();
+                const now = new Date();
+                const start = new Date(now.getTime() - (3 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
+                const end = new Date(now.getTime() + (4 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
+
+                // NHL API Endpoint
+                const gRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard?dates=${start}-${end}&limit=100&cb=${ts}`);
+                const gData = await gRes.json();
+                
+                const live = document.getElementById('liveGames');
+                const sched = document.getElementById('scheduledGames');
+                const fin = document.getElementById('finishedGames');
+                let liveHTML = ''; let finHTML = []; let schedHTML = [];
+
+                if (gData.events) {
+                    gData.events.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(e => {
+                        const s = e.status.type

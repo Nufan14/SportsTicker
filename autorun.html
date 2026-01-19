@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sports Ticker Auto-Cycle</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+        iframe { width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+    <iframe id="ticker-frame" src="nfl/index.html"></iframe>
+
+    <script>
+        // List the folders you want to cycle through
+        const leagues = [
+            "nfl/index.html",
+            "nhl/index.html",
+            "nba/index.html",
+            "mlb/index.html",
+            "soccer/index.html"
+        ];
+        
+        let currentIndex = 0;
+        const frame = document.getElementById('ticker-frame');
+
+        function cycleTicker() {
+            currentIndex = (currentIndex + 1) % leagues.length;
+            frame.src = leagues[currentIndex];
+            console.log("Switching to: " + leagues[currentIndex]);
+        }
+
+        // Change sport every 60 seconds
+        setInterval(cycleTicker, 60000);
+    </script>
+</body>
+</html>

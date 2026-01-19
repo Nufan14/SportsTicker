@@ -3,33 +3,35 @@
 <head>
     <meta charset="UTF-8" />
     <style>
-        /* MAX COMPACT DARK THEME */
-        body { background: #0a0a0a; color: #d0d0d0; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 5px; overflow: hidden; height: 100vh; }
-        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; opacity: 0.02; z-index: -1; pointer-events: none; filter: invert(1); }
+        /* MICRO-COMPACT DARK THEME */
+        body { background: #080808; color: #ccc; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 4px; overflow: hidden; height: 100vh; }
+        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; opacity: 0.02; z-index: -1; filter: invert(1); }
         
-        #live-section { width: 100%; margin-bottom: 8px; }
-        .no-live-msg { background: #111; color: #444; text-align: center; padding: 6px; border-radius: 4px; font-style: italic; font-size: 0.7rem; border: 1px dashed #222; }
+        #live-section { width: 100%; margin-bottom: 5px; }
+        .no-live-msg { background: #111; color: #444; text-align: center; padding: 4px; border-radius: 3px; font-style: italic; font-size: 0.65rem; border: 1px dashed #222; }
         
-        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 10px; }
-        .section-header { background: #000; color: #ffd700; padding: 4px 0; text-align: center; margin-bottom: 6px; border-radius: 3px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #333; }
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-bottom: 8px; }
+        .section-header { background: #000; color: #ffd700; padding: 3px 0; text-align: center; margin-bottom: 4px; border-radius: 2px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #333; }
 
-        .game-row { background: #161616; display: flex; align-items: center; justify-content: space-between; padding: 4px 10px; margin-bottom: 2px; border-radius: 4px; font-size: 0.7rem; border: 1px solid #222; }
-        .row-status { width: 80px; font-size: 0.55rem; color: #ff4444; font-weight: bold; text-transform: uppercase; text-align: left; }
-        .team-box { display: flex; align-items: center; gap: 5px; flex: 1; font-weight: 600; color: #eee; }
+        /* ULTRA-SLIM Game Rows */
+        .game-row { background: #141414; display: flex; align-items: center; justify-content: space-between; padding: 2px 8px; margin-bottom: 1px; border-radius: 2px; font-size: 0.68rem; border: 1px solid #1f1f1f; height: 22px; }
+        .row-status { width: 75px; font-size: 0.52rem; color: #ff4444; font-weight: bold; text-transform: uppercase; }
+        .team-box { display: flex; align-items: center; gap: 4px; flex: 1; font-weight: 600; color: #eee; }
         .team-box.home { justify-content: flex-end; }
-        .row-score { font-weight: 800; background: #000; color: #ffd700; padding: 1px 6px; border-radius: 3px; margin: 0 8px; min-width: 35px; text-align: center; border: 1px solid #333; }
+        .row-score { font-weight: 800; background: #000; color: #ffd700; padding: 0px 5px; border-radius: 2px; margin: 0 6px; min-width: 32px; text-align: center; border: 1px solid #222; }
 
-        .standings-wrapper { background: #111; border-radius: 5px; padding: 8px 12px; border: 1px solid #222; }
-        .standings-grid { display: flex; gap: 15px; width: 100%; }
+        /* Compact Standings Wrapper */
+        .standings-wrapper { background: #111; border-radius: 4px; padding: 6px 10px; border: 1px solid #222; }
+        .standings-grid { display: flex; gap: 12px; width: 100%; }
         .standings-col { flex: 1; }
         
-        table { width: 100%; border-collapse: collapse; font-size: 0.68rem; }
-        th { border-bottom: 1px solid #333; padding: 3px; text-align: left; color: #666; font-size: 0.6rem; }
-        td { padding: 2px 4px; border-bottom: 1px solid #1a1a1a; color: #bbb; }
-        .rank { width: 18px; font-weight: bold; color: #444; }
-        .team-cell { display: flex; align-items: center; gap: 5px; font-weight: 600; white-space: nowrap; }
-        .stat { text-align: center; width: 22px; color: #888; }
-        .pts { font-weight: bold; color: #fff; background: #222; border-radius: 2px; width: 28px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.65rem; }
+        th { border-bottom: 1px solid #333; padding: 2px; text-align: left; color: #555; font-size: 0.58rem; }
+        td { padding: 1px 3px; border-bottom: 1px solid #181818; color: #aaa; height: 18px; }
+        .rank { width: 15px; font-weight: bold; color: #444; }
+        .team-cell { display: flex; align-items: center; gap: 4px; font-weight: 600; white-space: nowrap; }
+        .stat { text-align: center; width: 20px; color: #777; }
+        .pts { font-weight: bold; color: #fff; background: #222; border-radius: 2px; width: 26px; }
     </style>
 </head>
 <body>
@@ -43,7 +45,7 @@
         <div><div class="section-header">Upcoming Fixtures</div><div id="scheduledGames"></div></div>
     </div>
     <div class="standings-wrapper">
-        <div class="section-header" id="standings-title" style="margin-bottom: 4px;">Standings</div>
+        <div class="section-header" id="standings-title" style="margin-bottom: 3px;">Standings</div>
         <div class="standings-grid">
             <div class="standings-col">
                 <table><thead><tr><th class="rank">#</th><th>Team</th><th class="stat">GP</th><th class="stat">GD</th><th class="stat pts">PTS</th></tr></thead><tbody id="sLeft"></tbody></table>
@@ -58,9 +60,8 @@
         async function update() {
             try {
                 const params = new URLSearchParams(window.location.search);
-                // Hard-coded default to 'esp.1' if the wrapper sends nothing
                 let lId = (params.get('league') || 'esp.1').split('&')[0].toLowerCase();
-                const ts = Date.now(); // Cache-buster
+                const ts = Date.now();
 
                 const gRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${lId}/scoreboard?cb=${ts}`);
                 const gData = await gRes.json();
@@ -82,13 +83,13 @@
                         }
                         const row = `<div class="game-row">
                             <div class="row-status">${lbl}</div>
-                            <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="14"></div>
+                            <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="12"></div>
                             <div class="row-score">${s === 'pre' ? 'VS' : home.score + '-' + away.score}</div>
-                            <div class="team-box away"><img src="${away.team.logo}" width="14"><span>${away.team.shortDisplayName || away.team.name}</span></div>
+                            <div class="team-box away"><img src="${away.team.logo}" width="12"><span>${away.team.shortDisplayName || away.team.name}</span></div>
                         </div>`;
                         if (s === 'in') liveHTML += row;
-                        else if (s === 'post' && fin.children.length < 6) fin.innerHTML += row;
-                        else if (s === 'pre' && sched.children.length < 6) sched.innerHTML += row;
+                        else if (s === 'post' && fin.children.length < 10) fin.innerHTML += row;
+                        else if (s === 'pre' && sched.children.length < 10) sched.innerHTML += row;
                     });
                 }
                 live.innerHTML = liveHTML || '<div class="no-live-msg">No live games at the moment</div>';
@@ -105,7 +106,7 @@
                     const v = (n) => stats.find(x => x.name === n)?.value || 0;
                     const row = `<tr>
                         <td class="rank">${i + 1}</td>
-                        <td><div class="team-cell"><img src="${e.team.logos[0].href}" width="12"> ${e.team.shortDisplayName || e.team.displayName}</div></td>
+                        <td><div class="team-cell"><img src="${e.team.logos[0].href}" width="10"> ${e.team.shortDisplayName || e.team.displayName}</div></td>
                         <td class="stat">${v('gamesPlayed')}</td><td class="stat">${v('pointDifferential')}</td>
                         <td class="stat pts">${v('points')}</td>
                     </tr>`;

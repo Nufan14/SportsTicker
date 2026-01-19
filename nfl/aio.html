@@ -8,38 +8,51 @@
     <style>
         body { 
             background: #f4f4f4 !important; 
+            margin: 0;
             padding: 20px; 
-            position: relative;
+            min-height: 100vh;
         }
 
-        /* THE WATERMARK LOGO */
+        /* THE WATERMARK LOGO - Centered and Visible */
         body::before {
             content: "";
             position: fixed;
             top: 50%;
             left: 50%;
-            width: 600px; /* Adjust size as needed */
-            height: 600px;
-            /* Replace this URL with your NFL logo file or link */
+            width: 500px; 
+            height: 500px;
+            /* Using a high-quality NFL Logo */
             background-image: url('https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             transform: translate(-50%, -50%);
-            opacity: 0.05; /* Keeps it very subtle so text stays readable */
+            opacity: 0.15; /* Increased from 0.05 to 0.15 for better visibility */
             z-index: 0;
             pointer-events: none;
         }
 
         #scoreboard { 
             position: relative; 
-            z-index: 1; /* Keeps scores on top of the logo */
+            z-index: 1; 
             background: transparent !important; 
         }
 
-        h2, h3, .section-header { color: #333 !important; }
+        /* Restoring your original high-contrast headers */
+        h2, h3, .section-header { 
+            color: #333 !important; 
+            position: relative;
+            z-index: 2;
+        }
         
-        /* Hide UI clutter for TV */
+        /* Ensure game cards stay opaque so the logo doesn't bleed through them */
+        .game-card, [class*="game-card"] {
+            background: #ffffff !important;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+        }
+
         #navbar-container, #footer-container, #ticker-button, #ticker-speed, label { 
             display: none !important; 
         }

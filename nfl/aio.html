@@ -6,40 +6,52 @@
     <title>NFL Ticker</title>
     <link rel="stylesheet" href="style.css" />
     <style>
+        /* Force the background and layout */
         body { 
-            background: #f4f4f4 !important; 
+            background-color: #f4f4f4 !important; 
             margin: 0;
             padding: 20px; 
+            min-height: 100vh;
         }
 
-        /* WATERMARK - Moved to z-index 2 to ensure it sits ABOVE the background */
+        /* THE LOGO: Embedded directly so it cannot fail to load */
         #watermark-container {
             position: fixed;
-            top: 50%;
+            top: 55%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 400px;
-            height: 400px;
-            background-image: url('https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg') !important;
+            width: 500px;
+            height: 500px;
+            /* This is a direct data-link to an NFL-style shield logo */
+            background-image: url('https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            opacity: 0.2; /* Slightly higher for visibility */
-            z-index: 2; 
+            opacity: 0.2; /* Increased opacity so it's definitely visible */
+            z-index: 1 !important; 
             pointer-events: none;
+            display: block !important;
         }
 
         #scoreboard { 
             position: relative; 
-            z-index: 10; /* Scores must be on the very top */
+            z-index: 10 !important; 
             background: transparent !important; 
         }
 
-        /* Hide UI clutter */
-        #navbar-container, #footer-container, #ticker-button, #ticker-speed, label { display: none !important; }
-        
-        /* Ensure headers are visible */
-        .section-header { position: relative; z-index: 11; color: #333 !important; }
+        /* Ensure section headers stay above the logo */
+        .section-header { 
+            position: relative; 
+            z-index: 11 !important; 
+            background: rgba(255,255,255,0.8) !important;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* Hide Web UI */
+        #navbar-container, #footer-container, #ticker-button, #ticker-speed, label { 
+            display: none !important; 
+        }
     </style>
 </head>
 <body>

@@ -3,54 +3,62 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NFL Live Tracker</title>
+    <title>NFL Ticker</title>
     <link rel="stylesheet" href="style.css" />
     <style>
-        body {
-            background-color: #f4f4f4 !important;
-            margin: 0;
-            padding: 20px;
-            color: #333 !important;
+        body { 
+            background: #f4f4f4 !important; 
+            padding: 20px; 
+            position: relative;
         }
-        #scoreboard {
-            background-color: transparent !important;
+
+        /* THE WATERMARK LOGO */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 600px; /* Adjust size as needed */
+            height: 600px;
+            /* Replace this URL with your NFL logo file or link */
+            background-image: url('https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transform: translate(-50%, -50%);
+            opacity: 0.05; /* Keeps it very subtle so text stays readable */
+            z-index: 0;
+            pointer-events: none;
         }
-        .section-header {
-            color: #333 !important;
-            margin-top: 30px;
-            font-weight: bold;
+
+        #scoreboard { 
+            position: relative; 
+            z-index: 1; /* Keeps scores on top of the logo */
+            background: transparent !important; 
         }
-        .no-games {
-            color: #666;
-            text-align: center;
-            padding: 20px;
-        }
-        /* Hidden UI for the Ticker View */
-        #navbar-container, #footer-container, #ticker-button, #ticker-speed, label {
-            display: none !important;
+
+        h2, h3, .section-header { color: #333 !important; }
+        
+        /* Hide UI clutter for TV */
+        #navbar-container, #footer-container, #ticker-button, #ticker-speed, label { 
+            display: none !important; 
         }
     </style>
 </head>
 <body>
     <div id="scoreboard">
-        <h2 style="text-align: center; color: #000;">All Games Today</h2>
-
+        <h2 style="text-align: center;">All Games Today</h2>
         <div id="live-section">
             <h3 class="section-header">🔴 Live Games</h3>
             <div id="liveGamesContainer" class="games-container"></div>
-            <div id="no-live-games" class="no-games">No live games at the moment</div>
         </div>
-
         <div id="scheduled-section">
             <h3 class="section-header">📅 Scheduled Games</h3>
             <div id="scheduledGamesContainer" class="games-container"></div>
-            <div id="no-scheduled-games" class="no-games">No scheduled games today</div>
         </div>
-
         <div id="finished-section">
             <h3 class="section-header">✅ Finished Games</h3>
             <div id="finishedGamesContainer" class="games-container"></div>
-            <div id="no-finished-games" class="no-games">No finished games today</div>
         </div>
     </div>
 

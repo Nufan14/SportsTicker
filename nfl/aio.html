@@ -6,50 +6,57 @@
     <title>NFL Ticker</title>
     <link rel="stylesheet" href="style.css" />
     <style>
-        /* This method stamps the logo into the background so it can't move layout items */
         body { 
             background-color: #f4f4f4 !important; 
             margin: 0 !important;
             padding: 20px !important;
             min-height: 100vh;
-            background-image: url('https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg') !important;
-            background-repeat: no-repeat !important;
-            background-position: center 55% !important;
-            background-size: 400px !important;
-            background-attachment: fixed !important; /* Keeps it from scrolling */
-        }
-
-        /* We use a pseudo-element to control the opacity of ONLY the background logo */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: inherit;
-            opacity: 0.15; /* Adjust this to make logo lighter or darker */
-            z-index: -1;
         }
 
         #scoreboard { 
             position: relative; 
             z-index: 10; 
             background: transparent !important; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* Cleaning up the UI for the TV */
+        /* NEW SCALING LOGO: Placed inside the scoreboard content flow */
+        .centered-logo {
+            position: absolute;
+            top: 200px; /* Adjust this so it sits behind the first few games */
+            width: 500px;
+            opacity: 0.15;
+            z-index: -1; /* Behind the cards */
+            pointer-events: none;
+        }
+
+        .centered-logo img {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Cleaning up UI for TV */
         #navbar-container, #footer-container, #ticker-button, #ticker-speed, label { 
             display: none !important; 
         }
 
         .section-header {
             color: #333 !important;
-            font-weight: bold;
             text-align: center;
-            margin-bottom: 20px;
+            width: 100%;
+            margin: 20px 0;
+            background: rgba(244, 244, 244, 0.8) !important;
         }
     </style>
 </head>
 <body>
     <div id="scoreboard">
+        <div class="centered-logo">
+            <img src="https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg" alt="NFL Logo">
+        </div>
+
         <div id="live-section">
             <h3 class="section-header">🔴 Live Games</h3>
             <div id="liveGamesContainer" class="games-container"></div>

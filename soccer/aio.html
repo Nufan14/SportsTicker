@@ -3,40 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { background: #f0f2f5; font-family: sans-serif; margin: 0; padding: 20px; }
-        .main-wrapper { max-width: 1000px; margin: 0 auto; }
-        .section-header { 
-            background: #222; color: #fff; padding: 10px; text-align: center; 
-            border-radius: 4px; margin: 20px 0 10px; font-weight: bold;
+        body { background: #f4f4f4; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        
+        /* Stop the stretching */
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        .header { 
+            background: #222; color: white; padding: 10px; 
+            text-align: center; border-radius: 4px; margin: 20px 0 10px; font-weight: bold;
         }
-        .columns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* 2 Column Grid for the bottom */
+        .split-view { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
         .game-card {
-            background: #fff; border: 1px solid #ddd; border-radius: 8px; 
-            margin-bottom: 10px; padding: 12px; display: flex; flex-direction: column;
+            background: white; border: 1px solid #ddd; border-radius: 6px; 
+            margin-bottom: 8px; padding: 10px; display: flex; flex-direction: column;
         }
-        .row-main { display: flex; align-items: center; justify-content: space-between; }
-        .team { width: 40%; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+
+        .row { display: flex; align-items: center; justify-content: space-between; }
+        
+        .team { width: 42%; display: flex; align-items: center; gap: 8px; }
         .home { justify-content: flex-end; text-align: right; }
         .away { justify-content: flex-start; text-align: left; }
-        .score { background: #eee; padding: 5px 10px; border-radius: 4px; font-weight: 800; min-width: 50px; text-align: center; }
-        .time { font-size: 0.75rem; color: #d00; width: 50px; font-weight: bold; }
-        .scorers { font-size: 0.7rem; color: #666; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; font-style: italic; }
-        @media (max-width: 700px) { .columns-grid { grid-template-columns: 1fr; } }
+        
+        .score { background: #333; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; min-width: 45px; text-align: center; }
+        .status { font-size: 0.7rem; color: #cc0000; font-weight: bold; width: 50px; }
+        
+        .scorers { 
+            font-size: 0.7rem; color: #666; margin-top: 6px; padding-top: 6px; 
+            border-top: 1px solid #eee; font-style: italic; 
+        }
+
+        @media (max-width: 800px) { .split-view { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <div class="main-wrapper">
-        <div class="section-header">🔴 LIVE</div>
-        <div id="liveCont"></div>
+    <div class="container">
+        <div class="header">🔴 LIVE MATCHES</div>
+        <div id="live-area"></div>
 
-        <div class="columns-grid">
+        <div class="split-view">
             <div>
-                <div class="section-header">✅ RESULTS</div>
-                <div id="finishedCont"></div>
+                <div class="header">✅ RECENT RESULTS</div>
+                <div id="results-area"></div>
             </div>
             <div>
-                <div class="section-header">📅 UPCOMING</div>
-                <div id="scheduledCont"></div>
+                <div class="header">📅 UPCOMING FIXTURES</div>
+                <div id="upcoming-area"></div>
             </div>
         </div>
     </div>
@@ -44,63 +58,62 @@
     <script>
         const league = new URLSearchParams(window.location.search).get('league') || 'eng.1';
 
-        async function updateScores() {
+        async function loadData() {
             try {
-                // Look back 3 days and forward 4 days
+                // Calculate dates: 4 days back to 7 days forward
                 const now = new Date();
-                const d1 = new Date(now.getTime() - (3 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
-                const d2 = new Date(now.getTime() + (4 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
+                const dStart = new Date(now.getTime() - (4 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
+                const dEnd = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
                 
-                const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard?dates=${d1}-${d2}`;
-                const response = await fetch(url);
-                const data = await response.json();
+                const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard?dates=${dStart}-${dEnd}&limit=100`;
+                const res = await fetch(url);
+                const data = await res.json();
 
-                const containers = {
-                    in: document.getElementById('liveCont'),
-                    pre: document.getElementById('scheduledCont'),
-                    post: document.getElementById('finishedCont')
-                };
+                const liveBox = document.getElementById('live-area');
+                const resBox = document.getElementById('results-area');
+                const upBox = document.getElementById('upcoming-area');
 
-                // Reset
-                Object.values(containers).forEach(c => c.innerHTML = "");
+                liveBox.innerHTML = ""; resBox.innerHTML = ""; upBox.innerHTML = "";
 
                 data.events.forEach(ev => {
-                    const comp = ev.competitions[0];
                     const status = ev.status.type.state;
+                    const comp = ev.competitions[0];
                     const home = comp.competitors[0];
                     const away = comp.competitors[1];
 
-                    // Scorers Text
-                    let scorersText = "";
+                    // Goal Scorers Logic
+                    let goalsHtml = "";
                     if (status === 'post' && comp.details) {
                         const goals = comp.details.filter(d => d.type.text === "Goal");
                         if (goals.length > 0) {
-                            scorersText = '<div class="scorers">⚽ ' + goals.map(g => g.athlete.displayName + " (" + g.clock.displayValue + ")").join(", ") + '</div>';
+                            goalsHtml = `<div class="scorers">⚽ ${goals.map(g => g.athlete.displayName).join(", ")}</div>`;
                         }
                     }
 
-                    const html = `
+                    const card = `
                         <div class="game-card">
-                            <div class="row-main">
-                                <div class="time">${ev.status.type.shortDetail}</div>
-                                <div class="team home">${home.team.shortDisplayName || home.team.name} <img src="${home.team.logo}" width="20"></div>
-                                <div class="score">${status === 'pre' ? 'VS' : home.score + ' - ' + away.score}</div>
-                                <div class="team away"><img src="${away.team.logo}" width="20"> ${away.team.shortDisplayName || away.team.name}</div>
+                            <div class="row">
+                                <div class="status">${ev.status.type.shortDetail}</div>
+                                <div class="team home">${home.team.shortDisplayName || home.team.name} <img src="${home.team.logo}" width="18"></div>
+                                <div class="score">${status === 'pre' ? 'VS' : home.score + '-' + away.score}</div>
+                                <div class="team away"><img src="${away.team.logo}" width="18"> ${away.team.shortDisplayName || away.team.name}</div>
                             </div>
-                            ${scorersText}
+                            ${goalsHtml}
                         </div>`;
 
-                    if (containers[status]) {
-                        containers[status].insertAdjacentHTML('beforeend', html);
+                    if (status === 'in') liveBox.innerHTML += card;
+                    else if (status === 'post') {
+                        if (resBox.children.length < 10) resBox.innerHTML += card;
+                    } 
+                    else if (status === 'pre') {
+                        if (upBox.children.length < 10) upBox.innerHTML += card;
                     }
                 });
-            } catch (err) {
-                console.log("Error fetching data", err);
-            }
+            } catch (e) { console.error("Error:", e); }
         }
 
-        updateScores();
-        setInterval(updateScores, 60000);
+        loadData();
+        setInterval(loadData, 60000);
     </script>
 </body>
 </html>

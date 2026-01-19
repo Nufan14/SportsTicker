@@ -1,85 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5256386471137141"
-     crossorigin="anonymous"></script>
+<head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5256386471137141" crossorigin="anonymous"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>All Games - NFL Live Tracker</title>
     <link rel="icon" href="football.png" type="image/png" />
     <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="style.css" />
+    
     <style>
-      body {
-          background: transparent !important;
-      }
-      #scoreboard {
-          background: transparent !important;
-      }
-      .games-container {
-          background: transparent !important;
-      }
-      /* This styles the individual score boxes to look professional */
-      .game-card, [class*="game-card"] { 
-          background: rgba(20, 20, 20, 0.8) !important; 
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
-          border-radius: 12px !important;
-          color: white !important;
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-      }
-      /* Makes the titles white so they are readable on the new dark background */
-      h2, h3, .section-header, label {
-          color: white !important;
-      }
+        /* 1. FORCE TRANSPARENCY EVERYWHERE EXCEPT CARDS */
+        html, body, #scoreboard, .games-container, #live-section, #scheduled-section, #finished-section {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+
+        /* 2. MODERN GLASS CARDS */
+        .game-card, [class*="game-card"] { 
+            background: rgba(15, 15, 15, 0.85) !important; 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 12px !important;
+            color: white !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            margin: 10px;
+        }
+
+        /* 3. FIX TEXT VISIBILITY */
+        h2, h3, .section-header, label, span, .no-games {
+            color: white !important;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        /* 4. HIDE UI ELEMENTS UNNECESSARY FOR TV TICKER */
+        #navbar-container, #footer-container, #ticker-button, #ticker-speed, label[for="ticker-speed"] {
+            display: none !important;
+        }
+
+        /* Clean up spacing for TV */
+        #scoreboard {
+            padding: 10px;
+        }
     </style>
     <script src="../assets/analytics.js"></script>
-    <script src="../assets/analytics.js"></script>
 </head>
-  <body>
+<body style="background: transparent !important;">
     <div id="navbar-container"></div>
 
     <div id="scoreboard">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-        <h2 style="margin: 0; color: black;">All Games Today</h2>
-        <div style="display: flex; align-items: center; gap: 15px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <label for="ticker-speed" style="font-size: 0.9em; font-weight: bold; color: #333;">Ticker Speed:</label>
-            <input type="number" id="ticker-speed" min="1" max="30" value="5" 
-                   style="width: 60px; padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 0.9em;">
-            <span style="font-size: 0.85em; color: #666;">sec</span>
-          </div>
-          <button id="ticker-button" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9em;">
-            📺 Ticker
-          </button>
-        </div>
+      <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+        <h2 style="margin: 0;">All Games Today</h2>
       </div>
 
-      <!-- Live Games Section -->
       <div id="live-section">
         <h3 class="section-header">🔴 Live Games</h3>
         <div id="liveGamesContainer" class="games-container"></div>
-        <div id="no-live-games" class="no-games" style="display: none;">
-          No live games at the moment
-        </div>
+        <div id="no-live-games" class="no-games">No live games at the moment</div>
       </div>
 
-      <!-- Scheduled Games Section -->
       <div id="scheduled-section">
         <h3 class="section-header">📅 Scheduled Games</h3>
         <div id="scheduledGamesContainer" class="games-container"></div>
-        <div id="no-scheduled-games" class="no-games" style="display: none;">
-          No scheduled games today
-        </div>
+        <div id="no-scheduled-games" class="no-games">No scheduled games today</div>
       </div>
 
-      <!-- Finished Games Section -->
       <div id="finished-section">
         <h3 class="section-header">✅ Finished Games</h3>
         <div id="finishedGamesContainer" class="games-container"></div>
-        <div id="no-finished-games" class="no-games" style="display: none;">
-          No finished games today
-        </div>
+        <div id="no-finished-games" class="no-games">No finished games today</div>
       </div>
     </div>
 
@@ -87,21 +76,5 @@
     <script src="navbar.js"></script>
     <script src="aio.js"></script>
     <div id="footer-container"></div>
-    <script>
-      // Ticker button functionality
-      document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('ticker-button').addEventListener('click', function() {
-          const speed = document.getElementById('ticker-speed').value || 5;
-          window.open(`ticker.html?speed=${speed}`, '_blank', 'width=1920,height=50,toolbar=no,menubar=no,scrollbars=no,resizable=yes,location=no,status=no');
-        });
-      });
-      
-      // Footer loading
-      fetch("footer.html")
-        .then(response => response.text())
-        .then(html => {
-          document.getElementById("footer-container").innerHTML = html;
-        });
-    </script>
-  </body>
+</body>
 </html>

@@ -4,43 +4,28 @@
     <meta charset="UTF-8" />
     <style>
         body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow: hidden; }
-        
-        .centered-logo {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 450px; opacity: 0.05; z-index: -1; pointer-events: none;
-        }
-
+        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; opacity: 0.05; z-index: -1; pointer-events: none; }
         #live-section { width: 100%; margin-bottom: 20px; display: none; }
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+        .section-header { background: #222; color: #fff; padding: 8px 0; text-align: center; margin-bottom: 10px; border-radius: 4px; font-size: 1rem; font-weight: bold; text-transform: uppercase; }
         
-        .columns-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            width: 100%;
-        }
-
-        .section-header { 
-            background: #222; color: #fff; padding: 8px 0; 
-            text-align: center; margin-bottom: 10px; border-radius: 4px; 
-            font-size: 1rem; font-weight: bold; text-transform: uppercase;
-        }
-
-        /* RESTORED HORIZONTAL ROW STYLE */
+        /* The exact row style from your working screenshot */
         .game-row {
             background: white; display: flex; align-items: center; 
             justify-content: space-between; padding: 8px 15px; 
             margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             font-size: 0.9rem;
         }
-
         .row-status { width: 45px; font-size: 0.75rem; color: #cc0000; font-weight: bold; }
         .team-box { display: flex; align-items: center; gap: 8px; flex: 1; }
         .team-box.home { justify-content: flex-end; text-align: right; }
         .team-box.away { justify-content: flex-start; text-align: left; }
         .row-score { font-weight: 800; background: #eee; padding: 2px 8px; border-radius: 4px; margin: 0 10px; min-width: 40px; text-align: center; }
+        #debug-msg { color: red; font-size: 10px; position: fixed; bottom: 0; left: 0; background: white; }
     </style>
 </head>
 <body>
+    <div id="debug-msg">Initializing...</div>
     <img src="" id="league-logo" class="centered-logo">
     
     <div id="live-section">
@@ -60,29 +45,35 @@
     </div>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        let leagueId = (params.get('league') || 'eng.1').split('&')[0];
-
-        const logos = {
-            'eng.1': 'https://logos-world.net/wp-content/uploads/2020/06/Premier-League-Logo-700x394.png',
-            'fra.1': 'https://logos-world.net/wp-content/uploads/2023/09/Ligue-1-Logo.png',
-            'ger.1': 'https://logos-world.net/wp-content/uploads/2023/03/Bundesliga-Logo.png',
-            'esp.1': 'https://logos-world.net/wp-content/uploads/2023/03/La-Liga-Logo.png',
-            'ita.1': 'https://logos-world.net/wp-content/uploads/2023/03/Serie-A-Logo.png'
-        };
-
         async function fetchSoccer() {
+            const debug = document.getElementById('debug-msg');
             try {
-                const logoImg = document.getElementById('league-logo');
-                if (logoImg) logoImg.src = logos[leagueId] || logos['eng.1'];
+                const params = new URLSearchParams(window.location.search);
+                let leagueId = (params.get('league') || 'eng.1').split('&')[0];
+                debug.innerText = "Fetching league: " + leagueId;
+
+                const logos = {
+                    'eng.1': 'https://logos-world.net/wp-content/uploads/2020/06/Premier-League-Logo-700x394.png',
+                    'fra.1': 'https://logos-world.net/wp-content/uploads/2023/09/Ligue-1-Logo.png',
+                    'ger.1': 'https://logos-world.net/wp-content/uploads/2023/03/Bundesliga-Logo.png',
+                    'esp.1': 'https://logos-world.net/wp-content/uploads/2023/03/La-Liga-Logo.png',
+                    'ita.1': 'https://logos-world.net/wp-content/uploads/2023/03/Serie-A-Logo.png'
+                };
+                
+                document.getElementById('league-logo').src = logos[leagueId] || logos['eng.1'];
 
                 const now = new Date();
-                // User Requested: 10 days before, 10 days after
                 const start = new Date(now.getTime() - (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
                 const end = new Date(now.getTime() + (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
 
-                const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=${start}-${end}&limit=100`);
+                const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=${start}-${end}&limit=100`;
+                const res = await fetch(url);
                 const data = await res.json();
+
+                if (!data.events || data.events.length === 0) {
+                    debug.innerText = "No events found in API response.";
+                    return;
+                }
 
                 const live = document.getElementById('liveGames');
                 const sched = document.getElementById('scheduledGames');
@@ -90,33 +81,32 @@
 
                 live.innerHTML = ''; sched.innerHTML = ''; fin.innerHTML = '';
 
-                if (data.events) {
-                    data.events.forEach(event => {
-                        const status = event.status.type.state;
-                        const comp = event.competitions[0];
-                        const home = comp.competitors[0];
-                        const away = comp.competitors[1];
-                        
-                        const rowHtml = `
-                            <div class="game-row">
-                                <div class="row-status">${event.status.type.shortDetail}</div>
-                                <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="20"></div>
-                                <div class="row-score">${status === 'pre' ? 'VS' : home.score + ' - ' + away.score}</div>
-                                <div class="team-box away"><img src="${away.team.logo}" width="20"><span>${away.team.shortDisplayName || away.team.name}</span></div>
-                            </div>`;
+                data.events.forEach(event => {
+                    const status = event.status.type.state;
+                    const home = event.competitions[0].competitors[0];
+                    const away = event.competitions[0].competitors[1];
+                    
+                    const rowHtml = `
+                        <div class="game-row">
+                            <div class="row-status">${event.status.type.shortDetail}</div>
+                            <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="20"></div>
+                            <div class="row-score">${status === 'pre' ? 'VS' : home.score + ' - ' + away.score}</div>
+                            <div class="team-box away"><img src="${away.team.logo}" width="20"><span>${away.team.shortDisplayName || away.team.name}</span></div>
+                        </div>`;
 
-                        if (status === 'in') live.innerHTML += rowHtml;
-                        else if (status === 'post' && fin.children.length < 10) fin.innerHTML += rowHtml;
-                        else if (status === 'pre' && sched.children.length < 10) sched.innerHTML += rowHtml;
-                    });
-                }
+                    if (status === 'in') live.innerHTML += rowHtml;
+                    else if (status === 'post' && fin.children.length < 10) fin.innerHTML += rowHtml;
+                    else if (status === 'pre' && sched.children.length < 10) sched.innerHTML += rowHtml;
+                });
 
-                // Title will only show if there are live games
                 document.getElementById('live-section').style.display = live.innerHTML ? 'block' : 'none';
+                debug.style.display = 'none'; // Hide debug if successful
 
-            } catch (e) { console.error("Error:", e); }
+            } catch (e) { 
+                debug.innerText = "Error: " + e.message;
+                console.error(e); 
+            }
         }
-
         fetchSoccer();
         setInterval(fetchSoccer, 60000);
     </script>

@@ -10,7 +10,7 @@ const LEAGUES = {
 
 const urlParams = new URLSearchParams(window.location.search);
 const urlLeague = urlParams.get('league');
-let currentLeague = urlLeague || localStorage.getItem("currentLeague") || "eng.1";; // Default to Premier League if not set
+let currentLeague = urlLeague || localStorage.getItem("currentLeague") || "eng.1"; // Default to Premier League if not set
 
 function getTuesdayRange() {
   const now = new Date();

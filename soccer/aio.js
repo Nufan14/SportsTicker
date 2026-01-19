@@ -1,5 +1,4 @@
 const params = new URLSearchParams(window.location.search);
-// Fix: Ignore any extra symbols added by the autorun cache-buster
 let leagueId = (params.get('league') || 'eng.1').split('&')[0];
 
 const logos = {
@@ -16,53 +15,53 @@ async function fetchSoccer() {
         if (logoImg) logoImg.src = logos[leagueId] || logos['eng.1'];
 
         const now = new Date();
-        // CHANGED: 7 days back and 14 days forward to bridge soccer schedule gaps
         const start = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
         const end = new Date(now.getTime() + (14 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
 
-        const API_URL = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=${start}-${end}&limit=50`;
-        const res = await fetch(API_URL);
+        const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=${start}-${end}&limit=100`);
         const data = await res.json();
-        const events = data.events || [];
 
         const live = document.getElementById('liveGamesContainer');
         const sched = document.getElementById('scheduledGamesContainer');
         const fin = document.getElementById('finishedGamesContainer');
+        const liveWrapper = document.getElementById('live-section-wrapper');
 
-        if (live) live.innerHTML = ''; 
-        if (sched) sched.innerHTML = ''; 
-        if (fin) fin.innerHTML = '';
+        live.innerHTML = ''; sched.innerHTML = ''; fin.innerHTML = '';
 
-        events.forEach(event => {
+        data.events.forEach(event => {
             const status = event.status.type.state;
-            const home = event.competitions[0].competitors[0];
-            const away = event.competitions[0].competitors[1];
-            
-            const row = document.createElement('div');
-            row.className = 'game-row';
-            row.innerHTML = `
-                <div class="row-status">${event.status.type.shortDetail}</div>
-                <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="20"></div>
-                <div class="row-score">${status === 'pre' ? 'VS' : home.score + ' - ' + away.score}</div>
-                <div class="team-box away"><img src="${away.team.logo}" width="20"><span>${away.team.shortDisplayName || away.team.name}</span></div>
-            `;
+            const comp = event.competitions[0];
+            const home = comp.competitors[0];
+            const away = comp.competitors[1];
 
-            if (status === 'in') {
-                if (live) live.appendChild(row);
-            } else if (status === 'pre') {
-                if (sched && sched.children.length < 8) sched.appendChild(row);
-            } else if (status === 'post') {
-                if (fin && fin.children.length < 8) fin.appendChild(row);
+            let scorersHtml = "";
+            if (status === 'post' && comp.details) {
+                const goals = comp.details
+                    .filter(d => d.type.text === "Goal")
+                    .map(g => g.athlete.displayName)
+                    .join(", ");
+                if (goals) scorersHtml = `<div class="scorers-box">⚽ ${goals}</div>`;
             }
+
+            const card = `
+                <div class="game-row">
+                    <div class="row-main">
+                        <div class="row-status">${event.status.type.shortDetail}</div>
+                        <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="20"></div>
+                        <div class="row-score">${status === 'pre' ? 'VS' : home.score + ' - ' + away.score}</div>
+                        <div class="team-box away"><img src="${away.team.logo}" width="20"><span>${away.team.shortDisplayName || away.team.name}</span></div>
+                    </div>
+                    ${scorersHtml}
+                </div>`;
+
+            if (status === 'in') live.innerHTML += card;
+            else if (status === 'post' && fin.children.length < 10) fin.innerHTML += card;
+            else if (status === 'pre' && sched.children.length < 10) sched.innerHTML += card;
         });
 
-        // Toggle Live header visibility
-        const liveSection = document.getElementById('live-section');
-        if (liveSection) {
-            liveSection.style.display = (live && live.innerHTML === '') ? 'none' : 'block';
-        }
+        liveWrapper.style.display = live.innerHTML ? 'block' : 'none';
 
-    } catch (e) { console.error("Soccer Fetch Error:", e); }
+    } catch (e) { console.error(e); }
 }
 
 fetchSoccer();

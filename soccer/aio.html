@@ -2,71 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Soccer Ticker</title>
-    <link rel="stylesheet" href="../nfl/style.css" />
     <style>
-        body { 
-            background-color: #f4f4f4 !important; 
-            margin: 0 !important; 
-            padding: 20px !important; 
-            overflow-x: hidden;
-        }
-
-        #scoreboard { 
-            position: relative; 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            z-index: 10;
-        }
+        body { background: #f0f0f0; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
+        #scoreboard { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
         
-        /* The Fixed Watermark Logo */
         .centered-logo {
-            position: fixed; /* Keeps it in the center of the TV screen */
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 500px;
-            opacity: 0.08; /* Faint for readability */
-            z-index: -1;
-            pointer-events: none;
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 400px; opacity: 0.07; z-index: -1;
         }
-        .centered-logo img { width: 100%; height: auto; display: block; }
 
-        /* Hide all menu/header elements from original source */
-        #navbar-container, header, .nav, .menu, .navbar, #all-games-header { 
-            display: none !important; 
+        .section-header { 
+            width: 90%; background: #333; color: white; padding: 8px; 
+            text-align: center; margin: 10px 0; border-radius: 4px; font-size: 0.9rem;
         }
+
+        .game-row {
+            width: 95%; background: white; margin-bottom: 4px; display: grid;
+            grid-template-columns: 80px 1fr 80px 1fr; align-items: center;
+            padding: 8px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .row-status { font-size: 0.75rem; color: #666; font-weight: bold; }
+        .row-team { display: flex; align-items: center; font-weight: 500; font-size: 1rem; }
+        .row-team.home { justify-content: flex-end; gap: 10px; }
+        .row-team.away { justify-content: flex-start; gap: 10px; }
+        .row-score { background: #eee; text-align: center; font-weight: bold; padding: 2px 8px; border-radius: 3px; margin: 0 10px; }
         
-        .section-header {
-            color: #333 !important;
-            text-align: center;
-            width: 100%;
-            margin: 20px 0;
-            background: rgba(244, 244, 244, 0.8) !important;
-            font-family: sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .games-container { 
-            width: 100%; 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: center; 
-            gap: 15px;
-        }
+        .games-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
     </style>
 </head>
 <body>
     <div id="scoreboard">
-        <div class="centered-logo">
-            <img src="" id="league-logo" alt="">
-        </div>
-        <div id="live-section"><h3 class="section-header">🔴 LIVE MATCHES</h3><div id="liveGamesContainer" class="games-container"></div></div>
-        <div id="scheduled-section"><h3 class="section-header">📅 SCHEDULED</h3><div id="scheduledGamesContainer" class="games-container"></div></div>
-        <div id="finished-section"><h3 class="section-header">✅ FINISHED</h3><div id="finishedGamesContainer" class="games-container"></div></div>
+        <img src="" id="league-logo" class="centered-logo">
+        <div class="section-header">🔴 LIVE</div>
+        <div id="liveGamesContainer" class="games-container"></div>
+        <div class="section-header">📅 UPCOMING</div>
+        <div id="scheduledGamesContainer" class="games-container"></div>
+        <div class="section-header">✅ RECENT RESULTS</div>
+        <div id="finishedGamesContainer" class="games-container"></div>
     </div>
     <script src="aio.js"></script>
 </body>

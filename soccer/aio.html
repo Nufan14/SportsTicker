@@ -3,67 +3,53 @@
 <head>
     <meta charset="UTF-8" />
     <style>
-        /* COMPACT PRO DARK THEME */
-        body { background: #121212; color: #e0e0e0; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 8px; overflow: hidden; height: 100vh; }
-        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; opacity: 0.03; z-index: -1; pointer-events: none; filter: grayscale(100%) invert(1); }
+        /* MAX COMPACT DARK THEME */
+        body { background: #0a0a0a; color: #d0d0d0; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 5px; overflow: hidden; height: 100vh; }
+        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; opacity: 0.02; z-index: -1; pointer-events: none; filter: invert(1); }
         
-        #live-section { width: 100%; margin-bottom: 12px; }
-        .no-live-msg { background: #1a1a1a; color: #555; text-align: center; padding: 8px; border-radius: 4px; font-style: italic; font-size: 0.75rem; border: 1px dashed #333; }
+        #live-section { width: 100%; margin-bottom: 8px; }
+        .no-live-msg { background: #111; color: #444; text-align: center; padding: 6px; border-radius: 4px; font-style: italic; font-size: 0.7rem; border: 1px dashed #222; }
         
-        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 12px; }
-        .section-header { background: #000; color: #ffd700; padding: 6px 0; text-align: center; margin-bottom: 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #333; }
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 10px; }
+        .section-header { background: #000; color: #ffd700; padding: 4px 0; text-align: center; margin-bottom: 6px; border-radius: 3px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #333; }
 
-        /* Slimmer Game Rows */
-        .game-row { background: #1e1e1e; display: flex; align-items: center; justify-content: space-between; padding: 5px 12px; margin-bottom: 3px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 0.75rem; border: 1px solid #2a2a2a; }
-        .row-status { width: 85px; font-size: 0.6rem; color: #ff4444; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.1; }
-        .team-box { display: flex; align-items: center; gap: 6px; flex: 1; font-weight: 600; color: #fff; }
-        .team-box.home { justify-content: flex-end; text-align: right; }
-        .team-box.away { justify-content: flex-start; text-align: left; }
-        .row-score { font-weight: 800; background: #0a0a0a; color: #ffd700; padding: 2px 8px; border-radius: 3px; margin: 0 10px; min-width: 40px; text-align: center; border: 1px solid #333; }
+        .game-row { background: #161616; display: flex; align-items: center; justify-content: space-between; padding: 4px 10px; margin-bottom: 2px; border-radius: 4px; font-size: 0.7rem; border: 1px solid #222; }
+        .row-status { width: 80px; font-size: 0.55rem; color: #ff4444; font-weight: bold; text-transform: uppercase; text-align: left; }
+        .team-box { display: flex; align-items: center; gap: 5px; flex: 1; font-weight: 600; color: #eee; }
+        .team-box.home { justify-content: flex-end; }
+        .row-score { font-weight: 800; background: #000; color: #ffd700; padding: 1px 6px; border-radius: 3px; margin: 0 8px; min-width: 35px; text-align: center; border: 1px solid #333; }
 
-        /* Compact Standings */
-        .standings-wrapper { background: #1a1a1a; border-radius: 6px; padding: 10px 15px; border: 1px solid #2a2a2a; }
-        .standings-grid { display: flex; gap: 20px; width: 100%; }
+        .standings-wrapper { background: #111; border-radius: 5px; padding: 8px 12px; border: 1px solid #222; }
+        .standings-grid { display: flex; gap: 15px; width: 100%; }
         .standings-col { flex: 1; }
         
-        table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
-        th { border-bottom: 1px solid #333; padding: 4px; text-align: left; color: #777; font-size: 0.65rem; text-transform: uppercase; }
-        td { padding: 3px 6px; border-bottom: 1px solid #222; color: #bbb; }
-        .rank { width: 20px; font-weight: bold; color: #555; }
-        .team-cell { display: flex; align-items: center; gap: 6px; font-weight: 600; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .stat { text-align: center; width: 25px; color: #999; }
-        .pts { font-weight: bold; color: #fff; background: #2a2a2a; border-radius: 2px; width: 30px; }
-        
-        img { filter: drop-shadow(0 0 1px rgba(0,0,0,0.5)); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.68rem; }
+        th { border-bottom: 1px solid #333; padding: 3px; text-align: left; color: #666; font-size: 0.6rem; }
+        td { padding: 2px 4px; border-bottom: 1px solid #1a1a1a; color: #bbb; }
+        .rank { width: 18px; font-weight: bold; color: #444; }
+        .team-cell { display: flex; align-items: center; gap: 5px; font-weight: 600; white-space: nowrap; }
+        .stat { text-align: center; width: 22px; color: #888; }
+        .pts { font-weight: bold; color: #fff; background: #222; border-radius: 2px; width: 28px; }
     </style>
 </head>
 <body>
     <img src="" id="league-logo" class="centered-logo">
-    
     <div id="live-section">
         <div class="section-header">🔴 Live Matches</div>
         <div id="liveGames"><div class="no-live-msg">No live games at the moment</div></div>
     </div>
-    
     <div class="columns-container">
         <div><div class="section-header">Recent Results</div><div id="finishedGames"></div></div>
         <div><div class="section-header">Upcoming Fixtures</div><div id="scheduledGames"></div></div>
     </div>
-
     <div class="standings-wrapper">
-        <div class="section-header" id="standings-title" style="margin-bottom: 5px;">League Standings</div>
+        <div class="section-header" id="standings-title" style="margin-bottom: 4px;">Standings</div>
         <div class="standings-grid">
             <div class="standings-col">
-                <table>
-                    <thead><tr><th class="rank">#</th><th>Team</th><th class="stat">GP</th><th class="stat">GD</th><th class="stat pts">PTS</th></tr></thead>
-                    <tbody id="sLeft"></tbody>
-                </table>
+                <table><thead><tr><th class="rank">#</th><th>Team</th><th class="stat">GP</th><th class="stat">GD</th><th class="stat pts">PTS</th></tr></thead><tbody id="sLeft"></tbody></table>
             </div>
             <div class="standings-col">
-                <table>
-                    <thead><tr><th class="rank">#</th><th>Team</th><th class="stat">GP</th><th class="stat">GD</th><th class="stat pts">PTS</th></tr></thead>
-                    <tbody id="sRight"></tbody>
-                </table>
+                <table><thead><tr><th class="rank">#</th><th>Team</th><th class="stat">GP</th><th class="stat">GD</th><th class="stat pts">PTS</th></tr></thead><tbody id="sRight"></tbody></table>
             </div>
         </div>
     </div>
@@ -72,23 +58,17 @@
         async function update() {
             try {
                 const params = new URLSearchParams(window.location.search);
+                // Hard-coded default to 'esp.1' if the wrapper sends nothing
                 let lId = (params.get('league') || 'esp.1').split('&')[0].toLowerCase();
-                
-                const logos = { 'eng.1': 'https://logos-world.net/wp-content/uploads/2020/06/Premier-League-Logo-700x394.png', 'fra.1': 'https://logos-world.net/wp-content/uploads/2023/09/Ligue-1-Logo.png', 'ger.1': 'https://logos-world.net/wp-content/uploads/2023/03/Bundesliga-Logo.png', 'esp.1': 'https://logos-world.net/wp-content/uploads/2023/03/La-Liga-Logo.png', 'ita.1': 'https://logos-world.net/wp-content/uploads/2023/03/Serie-A-Logo.png' };
-                document.getElementById('league-logo').src = logos[lId] || logos['eng.1'];
+                const ts = Date.now(); // Cache-buster
 
-                const now = new Date();
-                const start = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
-                const end = new Date(now.getTime() + (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
-
-                const gRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${lId}/scoreboard?dates=${start}-${end}&limit=100&cb=${now.getTime()}`);
+                const gRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${lId}/scoreboard?cb=${ts}`);
                 const gData = await gRes.json();
+                
                 const live = document.getElementById('liveGames');
                 const sched = document.getElementById('scheduledGames');
                 const fin = document.getElementById('finishedGames');
-                
-                let hasLive = false; let liveHTML = ''; 
-                sched.innerHTML = ''; fin.innerHTML = '';
+                let liveHTML = ''; sched.innerHTML = ''; fin.innerHTML = '';
 
                 if (gData.events) {
                     gData.events.forEach(e => {
@@ -100,21 +80,20 @@
                             const d = new Date(e.date);
                             lbl = d.toLocaleDateString([], {month:'short', day:'numeric'}) + " " + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
                         }
-                        const html = `<div class="game-row">
+                        const row = `<div class="game-row">
                             <div class="row-status">${lbl}</div>
-                            <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="16"></div>
+                            <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="14"></div>
                             <div class="row-score">${s === 'pre' ? 'VS' : home.score + '-' + away.score}</div>
-                            <div class="team-box away"><img src="${away.team.logo}" width="16"><span>${away.team.shortDisplayName || away.team.name}</span></div>
+                            <div class="team-box away"><img src="${away.team.logo}" width="14"><span>${away.team.shortDisplayName || away.team.name}</span></div>
                         </div>`;
-                        
-                        if (s === 'in') { liveHTML += html; hasLive = true; }
-                        else if (s === 'post' && fin.children.length < 7) fin.innerHTML += html;
-                        else if (s === 'pre' && sched.children.length < 7) sched.innerHTML += html;
+                        if (s === 'in') liveHTML += row;
+                        else if (s === 'post' && fin.children.length < 6) fin.innerHTML += row;
+                        else if (s === 'pre' && sched.children.length < 6) sched.innerHTML += row;
                     });
                 }
-                live.innerHTML = hasLive ? liveHTML : '<div class="no-live-msg">No live games at the moment</div>';
+                live.innerHTML = liveHTML || '<div class="no-live-msg">No live games at the moment</div>';
 
-                const sRes = await fetch(`https://site.api.espn.com/apis/v2/sports/soccer/${lId}/standings?cb=${now.getTime()}`);
+                const sRes = await fetch(`https://site.api.espn.com/apis/v2/sports/soccer/${lId}/standings?cb=${ts}`);
                 const sData = await sRes.json();
                 const lBody = document.getElementById('sLeft');
                 const rBody = document.getElementById('sRight');
@@ -125,4 +104,19 @@
                     const stats = e.stats;
                     const v = (n) => stats.find(x => x.name === n)?.value || 0;
                     const row = `<tr>
-                        <td
+                        <td class="rank">${i + 1}</td>
+                        <td><div class="team-cell"><img src="${e.team.logos[0].href}" width="12"> ${e.team.shortDisplayName || e.team.displayName}</div></td>
+                        <td class="stat">${v('gamesPlayed')}</td><td class="stat">${v('pointDifferential')}</td>
+                        <td class="stat pts">${v('points')}</td>
+                    </tr>`;
+                    if (i < 10) lBody.innerHTML += row;
+                    else rBody.innerHTML += row;
+                });
+                document.getElementById('standings-title').innerText = (sData.name || "League") + " Standings";
+            } catch (err) { console.error(err); }
+        }
+        update();
+        setInterval(update, 60000);
+    </script>
+</body>
+</html>

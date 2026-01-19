@@ -4,31 +4,14 @@
     <meta charset="UTF-8">
     <title>Basement TV Sports Ticker</title>
     <style>
-        /* Ensures the ticker fills the Yodeck screen perfectly without scrollbars */
         body, html { 
-            margin: 0; 
-            padding: 0; 
-            height: 100%; 
-            width: 100%;
-            overflow: hidden; 
-            background: #f4f4f4; 
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            overflow: hidden; background: #f4f4f4; 
         }
-        
-        .tv-frame { 
-            width: 100%; 
-            height: 100vh; 
-            overflow: hidden; 
-            position: relative; 
-        }
-
+        .tv-frame { width: 100%; height: 100vh; overflow: hidden; position: relative; }
         iframe { 
-            width: 110%; /* Slight oversize to hide edge gaps */
-            height: 500%; /* Vertical height for scrolling content */
-            border: none; 
-            position: absolute; 
-            left: -5%;
-            transform: scale(0.95); 
-            transform-origin: top center;
+            width: 100%; height: 100%; border: none; 
+            position: absolute; top: 0; left: 0;
             transition: opacity 0.5s ease-in-out;
         }
     </style>
@@ -39,17 +22,17 @@
     </div>
 
     <script>
-        // FULL LEAGUE LIST including restored Soccer leagues
+        // LEAGUE LIST: Soccer moved to the top
         const leagues = [
-            { name: "NFL Football", url: "nfl/aio.html" },
-            { name: "NHL Hockey", url: "nhl/aio.html" },
-            { name: "NBA Basketball", url: "nba/aio.html" },
-            { name: "Rugby Top 14", url: "rugby/aio.html" },
             { name: "Premier League", url: "soccer/aio.html?league=eng.1" },
             { name: "Ligue 1", url: "soccer/aio.html?league=fra.1" },
             { name: "La Liga", url: "soccer/aio.html?league=esp.1" },
             { name: "Bundesliga", url: "soccer/aio.html?league=ger.1" },
-            { name: "Serie A", url: "soccer/aio.html?league=ita.1" }
+            { name: "Serie A", url: "soccer/aio.html?league=ita.1" },
+            { name: "NFL Football", url: "nfl/aio.html" },
+            { name: "NHL Hockey", url: "nhl/aio.html" },
+            { name: "NBA Basketball", url: "nba/aio.html" },
+            { name: "Rugby Top 14", url: "rugby/aio.html" }
         ];
         
         let currentIndex = 0;
@@ -57,35 +40,19 @@
 
         function cycleTicker() {
             const current = leagues[currentIndex];
-            
-            // Generate a timestamp to trick the browser into loading the LATEST file
-            // This is what finally kills the black header/menu bar
-            const cacheBuster = "t=" + new Date().getTime();
-            
-            // Fade out
             frame.style.opacity = 0;
 
             setTimeout(() => {
-                // Determine if we need to append with '?' or '&'
-                const separator = current.url.includes('?') ? '&' : '?';
-                const finalUrl = current.url + separator + cacheBuster;
-                
-                console.log("Loading: " + current.name + " -> " + finalUrl);
-                frame.src = finalUrl;
-                
-                // Fade in
+                // Simple URL to ensure leagueId is read correctly
+                frame.src = current.url;
                 frame.style.opacity = 1;
-                
-                // Move to next league
                 currentIndex = (currentIndex + 1) % leagues.length;
             }, 500);
         }
 
-        // Initial Start
         cycleTicker();
-
-        // Switch sport every 20 seconds
-        setInterval(cycleTicker, 20000); 
+        // Cycle every 15 seconds (15000ms)
+        setInterval(cycleTicker, 15000); 
     </script>
 </body>
 </html>

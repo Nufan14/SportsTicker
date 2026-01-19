@@ -1,22 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Basement Sports Ticker - Test Mode</title>
+    <title>Basement Sports Ticker - AIO Mode</title>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: black; }
-        iframe { width: 100%; height: 100%; border: none; }
+        iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+            /* If the content is too long, this allows it to scroll internally 
+               but keeps the main page locked for Yodeck */
+            overflow-y: auto; 
+        }
     </style>
 </head>
 <body>
-    <iframe id="ticker-frame" src="nfl/ticker.html"></iframe>
+    <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
 
     <script>
         const leagues = [
-            "nfl/ticker.html",
-            "nhl/ticker.html",
-            "nba/ticker.html",
-            "mlb/ticker.html",
-            "soccer/ticker.html" 
+            "nfl/aio.html",
+            "nhl/aio.html",
+            "nba/aio.html",
+            "mlb/aio.html",
+            "soccer/aio.html",
+            "soccer/uefa.champions/aio.html" // Direct path to Soccer sub-tab
         ];
         
         let currentIndex = 0;
@@ -25,10 +33,9 @@
         function cycleTicker() {
             currentIndex = (currentIndex + 1) % leagues.length;
             frame.src = leagues[currentIndex];
-            console.log("Cycling to: " + leagues[currentIndex]);
         }
 
-        // --- TESTING SPEED: 15 SECONDS ---
+        // Keeping it at 15s for your test
         setInterval(cycleTicker, 15000); 
     </script>
 </body>

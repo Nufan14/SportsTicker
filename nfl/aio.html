@@ -6,68 +6,57 @@
     <title>NFL Ticker</title>
     <link rel="stylesheet" href="style.css" />
     <style>
-        /* Force the background and layout */
         body { 
             background-color: #f4f4f4 !important; 
-            margin: 0;
-            padding: 20px; 
-            min-height: 100vh;
+            margin: 0 !important;
+            padding: 20px !important; 
+            position: relative !important;
         }
 
-        /* THE LOGO: Embedded directly so it cannot fail to load */
-        #watermark-container {
-            position: fixed;
-            top: 55%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 500px;
-            height: 500px;
-            /* This is a direct data-link to an NFL-style shield logo */
-            background-image: url('https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0.2; /* Increased opacity so it's definitely visible */
+        /* LOCAL LOGO FIX */
+        #watermark-layer {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: 500px !important;
+            height: 500px !important;
+            /* Points to the file in your same folder */
+            background-image: url('nfl-logo.png') !important; 
+            background-size: contain !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            opacity: 0.2 !important; 
             z-index: 1 !important; 
-            pointer-events: none;
+            pointer-events: none !important;
             display: block !important;
         }
 
         #scoreboard { 
-            position: relative; 
+            position: relative !important; 
             z-index: 10 !important; 
             background: transparent !important; 
         }
 
-        /* Ensure section headers stay above the logo */
-        .section-header { 
-            position: relative; 
-            z-index: 11 !important; 
-            background: rgba(255,255,255,0.8) !important;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        /* Hide Web UI */
         #navbar-container, #footer-container, #ticker-button, #ticker-speed, label { 
             display: none !important; 
         }
     </style>
 </head>
 <body>
-    <div id="watermark-container"></div>
+    <div id="watermark-layer"></div>
 
     <div id="scoreboard">
         <div id="live-section">
-            <h3 class="section-header">🔴 Live Games</h3>
+            <h3 class="section-header" style="color: #333 !important;">🔴 Live Games</h3>
             <div id="liveGamesContainer" class="games-container"></div>
         </div>
         <div id="scheduled-section">
-            <h3 class="section-header">📅 Scheduled Games</h3>
+            <h3 class="section-header" style="color: #333 !important;">📅 Scheduled Games</h3>
             <div id="scheduledGamesContainer" class="games-container"></div>
         </div>
         <div id="finished-section">
-            <h3 class="section-header">✅ Finished Games</h3>
+            <h3 class="section-header" style="color: #333 !important;">✅ Finished Games</h3>
             <div id="finishedGamesContainer" class="games-container"></div>
         </div>
     </div>

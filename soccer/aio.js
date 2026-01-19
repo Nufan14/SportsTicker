@@ -1,8 +1,7 @@
-// 1. Identify which league to show from the URL (?league=...)
 const params = new URLSearchParams(window.location.search);
 const leagueId = params.get('league') || 'eng.1';
 
-// 2. Official Logo Mapping
+// Dynamic logo mapping
 const logos = {
     'eng.1': 'https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg',
     'fra.1': 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Ligue_1_McDonald%27s_logo.svg',
@@ -11,12 +10,21 @@ const logos = {
     'ita.1': 'https://upload.wikimedia.org/wikipedia/commons/e/e9/Serie_A_logo_2022.svg'
 };
 
-// Set the background logo immediately
-document.getElementById('league-logo').src = logos[leagueId] || logos['eng.1'];
+// Immediately set the logo so it appears even if there are no games
+const logoImg = document.getElementById('league-logo');
+if (logoImg) {
+    logoImg.src = logos[leagueId] || logos['eng.1'];
+}
 
 async function fetchSoccer() {
     try {
-        const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard`);
+        // Today's date in YYYYMMDD format to prevent empty API returns
+        const today = new Date();
+        const dateStr = today.getFullYear() + 
+                        String(today.getMonth() + 1).padStart(2, '0') + 
+                        String(today.getDate()).padStart(2, '0');
+
+        const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=${dateStr}`);
         const data = await res.json();
         const events = data.events || [];
 
@@ -27,7 +35,7 @@ async function fetchSoccer() {
         live.innerHTML = ''; sched.innerHTML = ''; fin.innerHTML = '';
 
         if (events.length === 0) {
-            sched.innerHTML = '<p class="no-games">No matches scheduled for today.</p>';
+            sched.innerHTML = '<p class="no-games">No matches found for this date.</p>';
             return;
         }
 
@@ -40,12 +48,12 @@ async function fetchSoccer() {
 
             card.innerHTML = `
                 <div class="team">
-                    <img src="${home.team.logo}" width="30">
+                    <img src="${home.team.logo}" width="30" onerror="this.style.opacity='0'">
                     <span>${home.team.displayName}</span>
                     <span class="score">${home.score}</span>
                 </div>
                 <div class="team">
-                    <img src="${away.team.logo}" width="30">
+                    <img src="${away.team.logo}" width="30" onerror="this.style.opacity='0'">
                     <span>${away.team.displayName}</span>
                     <span class="score">${away.score}</span>
                 </div>
@@ -58,9 +66,9 @@ async function fetchSoccer() {
         });
 
     } catch (e) { 
-        console.error("Soccer API Error:", e); 
+        console.error("Soccer Error:", e); 
     }
 }
 
 fetchSoccer();
-setInterval(fetchSoccer, 60000); // Update every minute
+setInterval(fetchSoccer, 60000);

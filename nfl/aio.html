@@ -6,65 +6,34 @@
     <title>NFL Live Tracker</title>
     <link rel="stylesheet" href="style.css" />
     <style>
-        /* Professional Light Theme */
         body {
-            background: linear-gradient(135deg, #f0f2f5 0%, #ffffff 100%) !important;
+            background-color: #f4f4f4 !important;
             margin: 0;
             padding: 20px;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        #scoreboard {
-            background: transparent !important;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* Restoring the original headers with better spacing */
-        h2 {
-            color: #1a1a1a !important;
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .section-header {
-            background: #fff;
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-top: 30px;
             color: #333 !important;
         }
-
-        /* Ensuring cards are visible and clean */
-        .game-card, [class*="game-card"] { 
-            background: #ffffff !important;
-            border: 1px solid #e1e4e8 !important;
-            border-radius: 12px !important;
-            color: #1a1a1a !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
-            transition: transform 0.2s;
+        #scoreboard {
+            background-color: transparent !important;
         }
-
-        /* Hide UI clutter for the TV ticker */
+        .section-header {
+            color: #333 !important;
+            margin-top: 30px;
+            font-weight: bold;
+        }
+        .no-games {
+            color: #666;
+            text-align: center;
+            padding: 20px;
+        }
+        /* Hidden UI for the Ticker View */
         #navbar-container, #footer-container, #ticker-button, #ticker-speed, label {
             display: none !important;
-        }
-
-        .no-games {
-            text-align: center;
-            padding: 40px;
-            color: #888;
-            font-style: italic;
         }
     </style>
 </head>
 <body>
     <div id="scoreboard">
-        <h2>All Games Today</h2>
+        <h2 style="text-align: center; color: #000;">All Games Today</h2>
 
         <div id="live-section">
             <h3 class="section-header">🔴 Live Games</h3>

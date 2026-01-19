@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Basement Sports Ticker</title>
+    <title>Basement TV Sports Ticker</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: black; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: black; font-family: sans-serif; }
         
-        /* The Sport Label Bar */
         #sport-header {
             background: #111;
             color: #fff;
@@ -13,9 +12,8 @@
             text-align: center;
             font-size: 1.8rem;
             font-weight: bold;
-            border-bottom: 3px solid #e21c21; /* Red accent line */
+            border-bottom: 3px solid #e21c21;
             text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
         .tv-frame {
@@ -26,14 +24,14 @@
         }
 
         iframe { 
-            width: 100%; 
-            height: 150%; 
+            width: 112%; 
+            height: 180%; 
             border: none; 
             position: absolute;
-            /* Adjust this to hide the original site's navigation bars */
-            top: -120px; 
+            /* DEEP CROP: Adjust this to hide internal headers like "Live Games" */
+            top: -180px; 
             left: 0;
-            transform: scale(0.92); 
+            transform: scale(0.88); 
             transform-origin: top center;
         }
     </style>
@@ -45,17 +43,16 @@
     </div>
 
     <script>
-        // Data-driven list for the cycle
         const leagues = [
             { name: "NFL Football", url: "nfl/aio.html" },
             { name: "NHL Hockey", url: "nhl/aio.html" },
             { name: "NBA Basketball", url: "nba/aio.html" },
-            { name: "Soccer: Premier League", url: "soccer/aio.html?league=eng.1" },
-            { name: "Soccer: Ligue 1", url: "soccer/aio.html?league=fra.1" },
-            { name: "Soccer: Bundesliga", url: "soccer/aio.html?league=ger.1" },
-            { name: "Soccer: La Liga", url: "soccer/aio.html?league=esp.1" },
-            { name: "Soccer: Serie A", url: "soccer/aio.html?league=ita.1" },
-            { name: "Soccer: UEFA Champions", url: "soccer/uefa/aio.html" }
+            { name: "Premier League", url: "soccer/aio.html?league=eng.1" },
+            { name: "Ligue 1", url: "soccer/aio.html?league=fra.1" },
+            { name: "Bundesliga", url: "soccer/aio.html?league=ger.1" },
+            { name: "La Liga", url: "soccer/aio.html?league=esp.1" },
+            { name: "Serie A", url: "soccer/aio.html?league=ita.1" },
+            { name: "Champions League", url: "soccer/uefa/live.html" } // Fixed UEFA path
         ];
         
         let currentIndex = 0;
@@ -65,15 +62,11 @@
         function cycleTicker() {
             currentIndex = (currentIndex + 1) % leagues.length;
             const currentSport = leagues[currentIndex];
-            
             header.innerText = currentSport.name;
             frame.src = currentSport.url;
         }
 
-        // Set initial label
         header.innerText = leagues[0].name;
-
-        // Change every 15 seconds for testing
         setInterval(cycleTicker, 15000); 
     </script>
 </body>

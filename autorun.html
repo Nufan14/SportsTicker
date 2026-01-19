@@ -61,4 +61,32 @@
             { name: "Premier League", url: "soccer/aio.html?league=eng.1", crop: "-230px" },
             { name: "Ligue 1", url: "soccer/aio.html?league=fra.1", crop: "-230px" },
             { name: "Bundesliga", url: "soccer/aio.html?league=ger.1", crop: "-230px" },
-            { name:
+            { name: "La Liga", url: "soccer/aio.html?league=esp.1", crop: "-230px" },
+            { name: "Serie A", url: "soccer/aio.html?league=ita.1", crop: "-230px" },
+            { name: "Champions League", url: "soccer/uefa/live.html", crop: "-80px" },
+            { name: "Rugby: Top 14", url: "rugby/aio.html?league=fra.top_14", crop: "-230px" }
+        ];
+        
+        let currentIndex = 0;
+        const frame = document.getElementById('ticker-frame');
+        const header = document.getElementById('sport-header');
+
+        function cycleTicker() {
+            currentIndex = (currentIndex + 1) % leagues.length;
+            const current = leagues[currentIndex];
+            
+            frame.style.opacity = 0;
+            setTimeout(() => {
+                header.innerText = current.name;
+                frame.src = current.url;
+                frame.style.top = current.crop;
+                frame.style.opacity = 1;
+            }, 500);
+        }
+
+        header.innerText = leagues[0].name;
+        frame.style.top = leagues[0].crop;
+        setInterval(cycleTicker, 20000); 
+    </script>
+</body>
+</html>

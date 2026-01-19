@@ -5,32 +5,58 @@
     <title>Soccer Ticker</title>
     <link rel="stylesheet" href="../nfl/style.css" />
     <style>
-        body { background-color: #f4f4f4 !important; margin: 0 !important; padding: 20px !important; }
-        #scoreboard { position: relative; min-height: 800px; display: flex; flex-direction: column; align-items: center; }
+        body { 
+            background-color: #f4f4f4 !important; 
+            margin: 0 !important; 
+            padding: 20px !important; 
+            overflow-x: hidden;
+        }
+
+        #scoreboard { 
+            position: relative; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            z-index: 10;
+        }
         
+        /* The Fixed Watermark Logo */
         .centered-logo {
-            position: absolute;
-            top: 100px;
-            width: 450px;
-            opacity: 0.12;
-            z-index: 1; /* Keeping it behind the text but visible */
+            position: fixed; /* Keeps it in the center of the TV screen */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            opacity: 0.08; /* Faint for readability */
+            z-index: -1;
             pointer-events: none;
         }
         .centered-logo img { width: 100%; height: auto; display: block; }
 
-        #navbar-container, header, .nav, .menu, #all-games-header { display: none !important; }
+        /* Hide all menu/header elements from original source */
+        #navbar-container, header, .nav, .menu, .navbar, #all-games-header { 
+            display: none !important; 
+        }
         
         .section-header {
             color: #333 !important;
             text-align: center;
             width: 100%;
             margin: 20px 0;
-            background: rgba(244, 244, 244, 0.9) !important;
-            position: relative;
-            z-index: 10;
+            background: rgba(244, 244, 244, 0.8) !important;
+            font-family: sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        .games-container { position: relative; z-index: 10; width: 100%; }
-        .no-games { text-align: center; color: #888; font-style: italic; z-index: 10; position: relative; }
+
+        .games-container { 
+            width: 100%; 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 15px;
+        }
     </style>
 </head>
 <body>

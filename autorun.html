@@ -1,63 +1,79 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Basement TV Sports Ticker</title>
+    <title>Basement Sports Ticker</title>
     <style>
-        /* Black background and no scrolling for a clean TV look */
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: black; }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: black; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
-        /* The Window: This hides the website headers and buttons */
-        .tv-window {
+        /* The Sport Label Bar */
+        #sport-header {
+            background: #111;
+            color: #fff;
+            padding: 12px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border-bottom: 3px solid #e21c21; /* Red accent line */
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .tv-frame {
             width: 100%;
-            height: 100vh;
+            height: calc(100vh - 60px);
             overflow: hidden;
             position: relative;
         }
 
         iframe { 
             width: 100%; 
-            height: 140%; /* Extra height to allow shifting up */
+            height: 150%; 
             border: none; 
             position: absolute;
-            /* SHIFT UP: This hides the navbar and soccer league buttons */
-            /* If it cuts off too much or too little, adjust this number */
-            top: -115px; 
+            /* Adjust this to hide the original site's navigation bars */
+            top: -120px; 
             left: 0;
-            /* SCALE: Shrinks the content to fit more games on the screen */
-            transform: scale(0.9); 
+            transform: scale(0.92); 
             transform-origin: top center;
         }
     </style>
 </head>
 <body>
-    <div class="tv-window">
+    <div id="sport-header">Loading...</div>
+    <div class="tv-frame">
         <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
     </div>
 
     <script>
+        // Data-driven list for the cycle
         const leagues = [
-            "nfl/aio.html",
-            "nhl/aio.html",
-            "nba/aio.html",
-            "f1/aio.html",
-            "soccer/aio.html?league=eng.1", // Premier League
-            "soccer/aio.html?league=fra.1", // Ligue 1
-            "soccer/aio.html?league=ger.1", // Bundesliga
-            "soccer/aio.html?league=esp.1", // La Liga
-            "soccer/aio.html?league=ita.1", // Serie A
-            "soccer/uefa/aio.html"          // Champions League
+            { name: "NFL Football", url: "nfl/aio.html" },
+            { name: "NHL Hockey", url: "nhl/aio.html" },
+            { name: "NBA Basketball", url: "nba/aio.html" },
+            { name: "Soccer: Premier League", url: "soccer/aio.html?league=eng.1" },
+            { name: "Soccer: Ligue 1", url: "soccer/aio.html?league=fra.1" },
+            { name: "Soccer: Bundesliga", url: "soccer/aio.html?league=ger.1" },
+            { name: "Soccer: La Liga", url: "soccer/aio.html?league=esp.1" },
+            { name: "Soccer: Serie A", url: "soccer/aio.html?league=ita.1" },
+            { name: "Soccer: UEFA Champions", url: "soccer/uefa/aio.html" }
         ];
         
         let currentIndex = 0;
         const frame = document.getElementById('ticker-frame');
+        const header = document.getElementById('sport-header');
 
         function cycleTicker() {
             currentIndex = (currentIndex + 1) % leagues.length;
-            frame.src = leagues[currentIndex];
-            console.log("Now showing: " + leagues[currentIndex]);
+            const currentSport = leagues[currentIndex];
+            
+            header.innerText = currentSport.name;
+            frame.src = currentSport.url;
         }
 
-        // 15 seconds for testing; change to 60000 (1 min) later
+        // Set initial label
+        header.innerText = leagues[0].name;
+
+        // Change every 15 seconds for testing
         setInterval(cycleTicker, 15000); 
     </script>
 </body>

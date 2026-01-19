@@ -3,21 +3,11 @@
 <head>
     <title>Basement TV Sports Ticker</title>
     <style>
-        :root {
-            --accent: #e21c21;
-        }
-
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            height: 100%; 
-            overflow: hidden; 
-            background: #f4f4f4; 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-        }
+        :root { --accent: #e21c21; }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #f4f4f4; font-family: 'Segoe UI', sans-serif; }
         
         #sport-header {
-            background: #1a1a1a;
+            background: #000;
             color: #fff;
             padding: 18px;
             text-align: center;
@@ -26,7 +16,6 @@
             border-bottom: 5px solid var(--accent);
             text-transform: uppercase;
             letter-spacing: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         .tv-frame {
@@ -37,13 +26,14 @@
         }
 
         iframe { 
-            width: 100%; 
-            height: 1000%; 
+            width: 110%; /* Back to original crop width */
+            height: 400%; 
             border: none; 
             position: absolute;
-            top: 0;
-            left: 0;
-            transition: opacity 0.5s ease-in-out;
+            left: -5%;
+            transform: scale(0.9); /* Back to original zoom */
+            transform-origin: top center;
+            transition: all 0.5s ease-in-out;
         }
     </style>
 </head>
@@ -62,9 +52,7 @@
             { name: "Ligue 1", url: "soccer/aio.html?league=fra.1", crop: "-230px" },
             { name: "Bundesliga", url: "soccer/aio.html?league=ger.1", crop: "-230px" },
             { name: "La Liga", url: "soccer/aio.html?league=esp.1", crop: "-230px" },
-            { name: "Serie A", url: "soccer/aio.html?league=ita.1", crop: "-230px" },
-            { name: "Champions League", url: "soccer/uefa/live.html", crop: "-80px" },
-            { name: "Rugby: Top 14", url: "rugby/aio.html?league=fra.top_14", crop: "-230px" }
+            { name: "Serie A", url: "soccer/aio.html?league=ita.1", crop: "-230px" }
         ];
         
         let currentIndex = 0;
@@ -84,8 +72,11 @@
             }, 500);
         }
 
+        // Set initial state
         header.innerText = leagues[0].name;
         frame.style.top = leagues[0].crop;
+        
+        // Start cycling
         setInterval(cycleTicker, 20000); 
     </script>
 </body>

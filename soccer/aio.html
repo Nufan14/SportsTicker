@@ -3,29 +3,32 @@
 <head>
     <meta charset="UTF-8" />
     <style>
-        body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow: hidden; }
+        body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
         .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; opacity: 0.05; z-index: -1; pointer-events: none; }
-        #live-section { width: 100%; margin-bottom: 20px; display: none; }
-        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
-        .section-header { background: #222; color: #fff; padding: 8px 0; text-align: center; margin-bottom: 10px; border-radius: 4px; font-size: 1rem; font-weight: bold; text-transform: uppercase; }
         
-        /* The exact row style from your working screenshot */
-        .game-row {
-            background: white; display: flex; align-items: center; 
-            justify-content: space-between; padding: 8px 15px; 
-            margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            font-size: 0.9rem;
-        }
-        .row-status { width: 45px; font-size: 0.75rem; color: #cc0000; font-weight: bold; }
-        .team-box { display: flex; align-items: center; gap: 8px; flex: 1; }
+        #live-section { width: 100%; margin-bottom: 20px; display: none; }
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-bottom: 20px; }
+        .section-header { background: #222; color: #fff; padding: 8px 0; text-align: center; margin-bottom: 10px; border-radius: 4px; font-size: 1rem; font-weight: bold; text-transform: uppercase; }
+
+        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 8px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 0.85rem; }
+        .row-status { width: 65px; font-size: 0.7rem; color: #cc0000; font-weight: bold; text-transform: uppercase; }
+        .team-box { display: flex; align-items: center; gap: 8px; flex: 1; font-weight: 600; }
         .team-box.home { justify-content: flex-end; text-align: right; }
         .team-box.away { justify-content: flex-start; text-align: left; }
-        .row-score { font-weight: 800; background: #eee; padding: 2px 8px; border-radius: 4px; margin: 0 10px; min-width: 40px; text-align: center; }
-        #debug-msg { color: red; font-size: 10px; position: fixed; bottom: 0; left: 0; background: white; }
+        .row-score { font-weight: 800; background: #eee; padding: 2px 8px; border-radius: 4px; margin: 0 10px; min-width: 45px; text-align: center; }
+
+        /* Standings Table Styles */
+        #standings-section { width: 100%; background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 10px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { border-bottom: 2px solid #eee; padding: 8px; text-align: left; color: #666; font-size: 0.75rem; }
+        td { padding: 6px 8px; border-bottom: 1px solid #f9f9f9; }
+        .rank { width: 30px; font-weight: bold; color: #999; }
+        .team-cell { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        .stat { text-align: center; width: 35px; }
+        .pts { font-weight: bold; background: #f0f0f0; border-radius: 3px; }
     </style>
 </head>
 <body>
-    <div id="debug-msg">Initializing...</div>
     <img src="" id="league-logo" class="centered-logo">
     
     <div id="live-section">
@@ -44,17 +47,28 @@
         </div>
     </div>
 
+    <div id="standings-section">
+        <div class="section-header" id="standings-title">League Standings</div>
+        <table id="standingsTable">
+            <thead>
+                <tr>
+                    <th class="rank">#</th>
+                    <th>Team</th>
+                    <th class="stat">GP</th>
+                    <th class="stat">W</th>
+                    <th class="stat">D</th>
+                    <th class="stat">L</th>
+                    <th class="stat">GD</th>
+                    <th class="stat pts">PTS</th>
+                </tr>
+            </thead>
+            <tbody id="standingsBody"></tbody>
+        </table>
+    </div>
+
     <script>
-       async function fetchSoccer() {
-    const debug = document.getElementById('debug-msg');
-    try {
         const params = new URLSearchParams(window.location.search);
-        let rawLeague = params.get('league') || 'eng.1';
-        
-        // This cleaning logic ensures "esp.1" doesn't get corrupted
-        let leagueId = rawLeague.split('&')[0].toLowerCase().trim();
-        
-        debug.innerText = "Loading League: " + leagueId;
+        let leagueId = (params.get('league') || 'eng.1').split('&')[0];
 
         const logos = {
             'eng.1': 'https://logos-world.net/wp-content/uploads/2020/06/Premier-League-Logo-700x394.png',
@@ -63,55 +77,86 @@
             'esp.1': 'https://logos-world.net/wp-content/uploads/2023/03/La-Liga-Logo.png',
             'ita.1': 'https://logos-world.net/wp-content/uploads/2023/03/Serie-A-Logo.png'
         };
-        
-        document.getElementById('league-logo').src = logos[leagueId] || logos['eng.1'];
 
-        const now = new Date();
-        const start = new Date(now.getTime() - (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
-        const end = new Date(now.getTime() + (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
+        async function fetchGames() {
+            try {
+                document.getElementById('league-logo').src = logos[leagueId] || logos['eng.1'];
+                const now = new Date();
+                const start = new Date(now.getTime() - (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
+                const end = new Date(now.getTime() + (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
 
-        // ESPN sometimes prefers 'esp.1' for La Liga
-        const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=${start}-${end}&limit=100`;
-        const res = await fetch(url);
-        const data = await res.json();
+                const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=${start}-${end}&limit=100`);
+                const data = await res.json();
 
-        const live = document.getElementById('liveGames');
-        const sched = document.getElementById('scheduledGames');
-        const fin = document.getElementById('finishedGames');
+                const live = document.getElementById('liveGames');
+                const sched = document.getElementById('scheduledGames');
+                const fin = document.getElementById('finishedGames');
 
-        live.innerHTML = ''; sched.innerHTML = ''; fin.innerHTML = '';
+                live.innerHTML = ''; sched.innerHTML = ''; fin.innerHTML = '';
 
-        if (!data.events || data.events.length === 0) {
-            debug.innerText = "No games found for " + leagueId + " in this 20-day window.";
-            debug.style.display = 'block';
-            return;
+                data.events.forEach(event => {
+                    const status = event.status.type.state;
+                    const home = event.competitions[0].competitors[0];
+                    const away = event.competitions[0].competitors[1];
+                    
+                    // Format Date/Time for Upcoming Games
+                    let statusText = event.status.type.shortDetail;
+                    if (status === 'pre') {
+                        const date = new Date(event.date);
+                        statusText = date.toLocaleDateString([], {month:'short', day:'numeric'}) + " " + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
+                    }
+
+                    const rowHtml = `
+                        <div class="game-row">
+                            <div class="row-status">${statusText}</div>
+                            <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="20"></div>
+                            <div class="row-score">${status === 'pre' ? 'VS' : home.score + ' - ' + away.score}</div>
+                            <div class="team-box away"><img src="${away.team.logo}" width="20"><span>${away.team.shortDisplayName || away.team.name}</span></div>
+                        </div>`;
+
+                    if (status === 'in') live.innerHTML += rowHtml;
+                    else if (status === 'post' && fin.children.length < 8) fin.innerHTML += rowHtml;
+                    else if (status === 'pre' && sched.children.length < 8) sched.innerHTML += rowHtml;
+                });
+
+                document.getElementById('live-section').style.display = live.innerHTML ? 'block' : 'none';
+            } catch (e) { console.error(e); }
         }
 
-        data.events.forEach(event => {
-            const status = event.status.type.state;
-            const home = event.competitions[0].competitors[0];
-            const away = event.competitions[0].competitors[1];
-            
-            const rowHtml = `
-                <div class="game-row">
-                    <div class="row-status">${event.status.type.shortDetail}</div>
-                    <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" width="20"></div>
-                    <div class="row-score">${status === 'pre' ? 'VS' : home.score + ' - ' + away.score}</div>
-                    <div class="team-box away"><img src="${away.team.logo}" width="20"><span>${away.team.shortDisplayName || away.team.name}</span></div>
-                </div>`;
+        async function fetchStandings() {
+            try {
+                const res = await fetch(`https://site.api.espn.com/apis/v2/sports/soccer/${leagueId}/standings`);
+                const data = await res.json();
+                const container = document.getElementById('standingsBody');
+                container.innerHTML = '';
+                
+                document.getElementById('standings-title').innerText = data.name + " Standings";
 
-            if (status === 'in') live.innerHTML += rowHtml;
-            else if (status === 'post' && fin.children.length < 10) fin.innerHTML += rowHtml;
-            else if (status === 'pre' && sched.children.length < 10) sched.innerHTML += rowHtml;
-        });
+                const standings = data.children[0].standings.entries.slice(0, 10); // Show Top 10
 
-        document.getElementById('live-section').style.display = live.innerHTML ? 'block' : 'none';
-        debug.style.display = 'none'; 
+                standings.forEach(entry => {
+                    const stats = entry.stats;
+                    const getStat = (name) => stats.find(s => s.name === name)?.value || 0;
 
-    } catch (e) { 
-        debug.innerText = "API Error: " + e.message;
-        debug.style.display = 'block';
-    }
-}
-fetchSoccer();
-setInterval(fetchSoccer, 60000);
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="rank">${entry.stats.find(s => s.name === 'rank')?.value || '-'}</td>
+                        <td><div class="team-cell"><img src="${entry.team.logos[0].href}" width="20"> ${entry.team.displayName}</div></td>
+                        <td class="stat">${getStat('gamesPlayed')}</td>
+                        <td class="stat">${getStat('wins')}</td>
+                        <td class="stat">${getStat('ties')}</td>
+                        <td class="stat">${getStat('losses')}</td>
+                        <td class="stat">${getStat('pointDifferential')}</td>
+                        <td class="stat pts">${getStat('points')}</td>
+                    `;
+                    container.appendChild(tr);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        fetchGames();
+        fetchStandings();
+        setInterval(() => { fetchGames(); fetchStandings(); }, 60000);
+    </script>
+</body>
+</html>

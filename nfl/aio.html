@@ -10,57 +10,47 @@
             background: #f4f4f4 !important; 
             margin: 0;
             padding: 20px; 
-            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* THE WATERMARK LOGO - Centered and Visible */
-        body::before {
-            content: "";
+        /* NEW LOGO METHOD */
+        #watermark-container {
             position: fixed;
-            top: 50%;
+            top: 55%; /* Centered in the viewing area */
             left: 50%;
-            width: 500px; 
-            height: 500px;
-            /* Using a high-quality NFL Logo */
+            transform: translate(-50%, -50%);
+            width: 450px;
+            height: 450px;
             background-image: url('https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            transform: translate(-50%, -50%);
-            opacity: 0.15; /* Increased from 0.05 to 0.15 for better visibility */
-            z-index: 0;
+            opacity: 0.12; /* Visible but subtle */
+            z-index: 1; /* Sits just above the background */
             pointer-events: none;
         }
 
         #scoreboard { 
             position: relative; 
-            z-index: 1; 
+            z-index: 5; /* Higher than watermark to stay on top */
             background: transparent !important; 
         }
 
-        /* Restoring your original high-contrast headers */
-        h2, h3, .section-header { 
-            color: #333 !important; 
-            position: relative;
-            z-index: 2;
-        }
-        
-        /* Ensure game cards stay opaque so the logo doesn't bleed through them */
+        /* Ensure card background doesn't hide the logo too much */
         .game-card, [class*="game-card"] {
-            background: #ffffff !important;
-            position: relative;
-            z-index: 2;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 12px !important;
         }
 
-        #navbar-container, #footer-container, #ticker-button, #ticker-speed, label { 
-            display: none !important; 
-        }
+        /* Hide UI clutter */
+        #navbar-container, #footer-container, #ticker-button, #ticker-speed, label { display: none !important; }
     </style>
 </head>
 <body>
+    <div id="watermark-container"></div>
+
     <div id="scoreboard">
-        <h2 style="text-align: center;">All Games Today</h2>
+        <h2 style="text-align: center; color: #000; margin-top: 0;">All Games Today</h2>
         <div id="live-section">
             <h3 class="section-header">🔴 Live Games</h3>
             <div id="liveGamesContainer" class="games-container"></div>

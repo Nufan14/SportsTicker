@@ -1,30 +1,28 @@
 const params = new URLSearchParams(window.location.search);
-const leagueId = params.get('league') || 'eng.1';
+let leagueId = params.get('league') || 'eng.1';
 
-// Dynamic logo mapping
 const logos = {
     'eng.1': 'https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg',
-    'fra.1': 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Ligue_1_McDonald%27s_logo.svg',
+    // Swapped to more stable PNG/SVG links for Ligue 1 and La Liga
+    'fra.1': 'https://upload.wikimedia.org/wikipedia/commons/5/5e/Ligue1_Logo_2024.svg',
     'ger.1': 'https://upload.wikimedia.org/wikipedia/en/d/df/Bundesliga_logo_%282017%29.svg',
     'esp.1': 'https://upload.wikimedia.org/wikipedia/commons/0/0f/LaLiga_2023_logo.svg',
     'ita.1': 'https://upload.wikimedia.org/wikipedia/commons/e/e9/Serie_A_logo_2022.svg'
 };
 
-// Immediately set the logo so it appears even if there are no games
-const logoImg = document.getElementById('league-logo');
-if (logoImg) {
-    logoImg.src = logos[leagueId] || logos['eng.1'];
-}
+window.onload = () => {
+    const logoImg = document.getElementById('league-logo');
+    if (logoImg) {
+        logoImg.src = logos[leagueId] || logos['eng.1'];
+    }
+    fetchSoccer();
+};
 
 async function fetchSoccer() {
     try {
-        // Today's date in YYYYMMDD format to prevent empty API returns
-        const today = new Date();
-        const dateStr = today.getFullYear() + 
-                        String(today.getMonth() + 1).padStart(2, '0') + 
-                        String(today.getDate()).padStart(2, '0');
-
-        const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard?dates=${dateStr}`);
+        // We remove the specific ?dates= limit to allow the API to show the full "Recent" window
+        const API_URL = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/scoreboard`;
+        const res = await fetch(API_URL);
         const data = await res.json();
         const events = data.events || [];
 
@@ -35,7 +33,7 @@ async function fetchSoccer() {
         live.innerHTML = ''; sched.innerHTML = ''; fin.innerHTML = '';
 
         if (events.length === 0) {
-            sched.innerHTML = '<p class="no-games">No matches found for this date.</p>';
+            sched.innerHTML = `<p class="no-games">No matches found.</p>`;
             return;
         }
 
@@ -65,10 +63,8 @@ async function fetchSoccer() {
             else if (status === 'post') fin.appendChild(card);
         });
 
-    } catch (e) { 
-        console.error("Soccer Error:", e); 
+    } catch (e) {
+        console.error("Soccer Fetch Error:", e);
     }
 }
-
-fetchSoccer();
 setInterval(fetchSoccer, 60000);

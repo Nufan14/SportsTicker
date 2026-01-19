@@ -4,59 +4,46 @@
     <title>Basement TV Sports Ticker</title>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #f4f4f4; }
-        
-        .tv-frame {
-            width: 100%;
-            height: 100vh; /* Now uses the full screen height */
-            overflow: hidden;
-            position: relative;
-        }
-
+        .tv-frame { width: 100%; height: 100vh; overflow: hidden; position: relative; }
         iframe { 
-            width: 110%; 
-            height: 500%; 
-            border: none; 
-            position: absolute;
-            left: -5%;
-            transform: scale(0.95); /* Slightly larger scale since header is gone */
-            transform-origin: top center;
+            width: 110%; height: 500%; border: none; position: absolute; left: -5%;
+            transform: scale(0.95); transform-origin: top center;
             transition: opacity 0.5s ease-in-out;
         }
     </style>
 </head>
 <body>
     <div class="tv-frame">
-        <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
+        <iframe id="ticker-frame" src=""></iframe>
     </div>
 
     <script>
         const leagues = [
-            { url: "nfl/aio.html", crop: "0px" },
-            { url: "nhl/aio.html", crop: "0px" },
-            { url: "nba/aio.html", crop: "0px" },
-            { url: "rugby/aio.html", crop: "0px" },
-            { url: "soccer/aio.html?league=eng.1", crop: "0px" },
-            { url: "soccer/aio.html?league=fra.1", crop: "0px" },
-            { url: "soccer/aio.html?league=ger.1", crop: "0px" },
-            { url: "soccer/aio.html?league=esp.1", crop: "0px" },
-            { url: "soccer/aio.html?league=ita.1", crop: "0px" }
+            { name: "NFL Football", url: "nfl/aio.html" },
+            { name: "NHL Hockey", url: "nhl/aio.html" },
+            { name: "NBA Basketball", url: "nba/aio.html" },
+            { name: "Rugby Top 14", url: "rugby/aio.html" }
         ];
         
         let currentIndex = 0;
         const frame = document.getElementById('ticker-frame');
 
         function cycleTicker() {
-            currentIndex = (currentIndex + 1) % leagues.length;
             const current = leagues[currentIndex];
+            // The timestamp (?t=) forces the browser to pull the LATEST version from GitHub
+            const cacheBuster = "?t=" + new Date().getTime();
             
             frame.style.opacity = 0;
             setTimeout(() => {
-                frame.src = current.url;
-                frame.style.top = current.crop;
+                frame.src = current.url + cacheBuster;
                 frame.style.opacity = 1;
+                currentIndex = (currentIndex + 1) % leagues.length;
             }, 500);
         }
 
+        // Run immediately on load
+        cycleTicker();
+        // Cycle every 20 seconds
         setInterval(cycleTicker, 20000); 
     </script>
 </body>

@@ -14,6 +14,7 @@
             font-weight: bold;
             border-bottom: 3px solid #e21c21;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .tv-frame {
@@ -24,50 +25,31 @@
         }
 
         iframe { 
-            width: 112%; 
-            height: 180%; 
+            width: 114%; 
+            height: 400%; /* Massive height to ensure no bottom-cropping of results */
             border: none; 
             position: absolute;
-            /* DEEP CROP: Adjust this to hide internal headers like "Live Games" */
-            top: -180px; 
+            top: -160px; /* Default starting crop */
             left: 0;
             transform: scale(0.88); 
             transform-origin: top center;
+            transition: top 0.3s ease-in-out; /* Smoothly adjust crop when sport changes */
         }
     </style>
 </head>
 <body>
-    <div id="sport-header">Loading...</div>
+    <div id="sport-header">NFL FOOTBALL</div>
     <div class="tv-frame">
         <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
     </div>
 
     <script>
         const leagues = [
-            { name: "NFL Football", url: "nfl/aio.html" },
-            { name: "NHL Hockey", url: "nhl/aio.html" },
-            { name: "NBA Basketball", url: "nba/aio.html" },
-            { name: "Premier League", url: "soccer/aio.html?league=eng.1" },
-            { name: "Ligue 1", url: "soccer/aio.html?league=fra.1" },
-            { name: "Bundesliga", url: "soccer/aio.html?league=ger.1" },
-            { name: "La Liga", url: "soccer/aio.html?league=esp.1" },
-            { name: "Serie A", url: "soccer/aio.html?league=ita.1" },
-            { name: "Champions League", url: "soccer/uefa/live.html" } // Fixed UEFA path
-        ];
-        
-        let currentIndex = 0;
-        const frame = document.getElementById('ticker-frame');
-        const header = document.getElementById('sport-header');
-
-        function cycleTicker() {
-            currentIndex = (currentIndex + 1) % leagues.length;
-            const currentSport = leagues[currentIndex];
-            header.innerText = currentSport.name;
-            frame.src = currentSport.url;
-        }
-
-        header.innerText = leagues[0].name;
-        setInterval(cycleTicker, 15000); 
-    </script>
-</body>
-</html>
+            { name: "NFL Football", url: "nfl/aio.html", crop: "-160px" },
+            { name: "NHL Hockey", url: "nhl/aio.html", crop: "-160px" },
+            { name: "NBA Basketball", url: "nba/aio.html", crop: "-160px" },
+            { name: "Premier League", url: "soccer/aio.html?league=eng.1", crop: "-265px" },
+            { name: "Ligue 1", url: "soccer/aio.html?league=fra.1", crop: "-265px" },
+            { name: "Bundesliga", url: "soccer/aio.html?league=ger.1", crop: "-265px" },
+            { name: "La Liga", url: "soccer/aio.html?league=esp.1", crop: "-265px" },
+            { name: "Serie A", url: "

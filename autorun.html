@@ -5,33 +5,42 @@
     <style>
         :root {
             --accent: #e21c21;
-            --bg-dark: #0a0a0a;
-            --glass: rgba(255, 255, 255, 0.1);
+            --glass: rgba(0, 0, 0, 0.75);
         }
 
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: var(--bg-dark); font-family: 'Segoe UI', Roboto, sans-serif; }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', Roboto, sans-serif; }
         
-        /* Modern Header Look */
+        /* THE STADIUM BACKGROUND */
+        #bg-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            filter: blur(15px) brightness(0.3); /* Heavy blur keeps text readable */
+            z-index: -1;
+            transition: opacity 1s ease-in-out;
+        }
+
+        /* Modern Header */
         #sport-header {
-            background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+            background: linear-gradient(180deg, rgba(30,30,30,0.9) 0%, rgba(0,0,0,1) 100%);
             color: #fff;
-            padding: 15px;
+            padding: 18px;
             text-align: center;
-            font-size: 2rem;
-            font-weight: 800;
-            border-bottom: 4px solid var(--accent);
+            font-size: 2.2rem;
+            font-weight: 900;
+            border-bottom: 5px solid var(--accent);
             text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            letter-spacing: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
         .tv-frame {
             width: 100%;
-            height: calc(100vh - 75px);
+            height: calc(100vh - 85px);
             overflow: hidden;
             position: relative;
-            background: var(--bg-dark);
         }
 
         iframe { 
@@ -39,15 +48,16 @@
             height: 400%; 
             border: none; 
             position: absolute;
-            left: -5%; /* Center the scaled content */
+            left: -5%;
             transform: scale(0.9); 
             transform-origin: top center;
-            transition: all 0.5s ease-in-out;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
 <body>
-    <div id="sport-header">LOADING TICKER...</div>
+    <div id="bg-overlay"></div>
+    <div id="sport-header">LOADING...</div>
     <div class="tv-frame">
         <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
     </div>
@@ -62,9 +72,8 @@
             { name: "Bundesliga", url: "soccer/aio.html?league=ger.1", crop: "-230px" },
             { name: "La Liga", url: "soccer/aio.html?league=esp.1", crop: "-230px" },
             { name: "Serie A", url: "soccer/aio.html?league=ita.1", crop: "-230px" },
-            { name: "Rugby: Top 14", url: "rugby/aio.html?league=fra.top_14", crop: "-230px" },
-            { name: "Rugby: Champions Cup", url: "rugby/aio.html?league=epcr.champions", crop: "-230px" },
-            { name: "Champions League", url: "soccer/uefa/live.html", crop: "-80px" }
+            { name: "Champions League", url: "soccer/uefa/live.html", crop: "-80px" },
+            { name: "Rugby: Top 14", url: "rugby/aio.html?league=fra.top_14", crop: "-230px" }
         ];
         
         let currentIndex = 0;
@@ -75,22 +84,21 @@
             currentIndex = (currentIndex + 1) % leagues.length;
             const current = leagues[currentIndex];
             
-            // Fade out effect
             frame.style.opacity = 0;
+            frame.style.transform = "scale(0.85) translateY(20px)"; // Smooth slide effect
             
             setTimeout(() => {
                 header.innerText = current.name;
                 frame.src = current.url;
                 frame.style.top = current.crop;
                 frame.style.opacity = 1;
-            }, 500);
+                frame.style.transform = "scale(0.9) translateY(0px)";
+            }, 600);
         }
 
-        // Init
         header.innerText = leagues[0].name;
         frame.style.top = leagues[0].crop;
-        
-        setInterval(cycleTicker, 20000); // 20 seconds is better for reading scores
+        setInterval(cycleTicker, 20000); 
     </script>
 </body>
 </html>

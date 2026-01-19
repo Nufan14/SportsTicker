@@ -1,80 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5256386471137141" crossorigin="anonymous"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>All Games - NFL Live Tracker</title>
-    <link rel="icon" href="football.png" type="image/png" />
+    <title>NFL Ticker</title>
     <link rel="stylesheet" href="style.css" />
-    
     <style>
-        /* 1. FORCE TRANSPARENCY EVERYWHERE EXCEPT CARDS */
-        html, body, #scoreboard, .games-container, #live-section, #scheduled-section, #finished-section {
-            background: transparent !important;
+        /* This forces the background to be empty so the autorun image shows through */
+        html, body {
+            background: none !important;
             background-color: transparent !important;
         }
-
-        /* 2. MODERN GLASS CARDS */
+        #scoreboard, .games-container, #navbar-container {
+            background: transparent !important;
+        }
+        /* Make cards look professional on the dark stadium background */
         .game-card, [class*="game-card"] { 
-            background: rgba(15, 15, 15, 0.85) !important; 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(20, 20, 20, 0.9) !important; 
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-radius: 12px !important;
             color: white !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-            margin: 10px;
         }
-
-        /* 3. FIX TEXT VISIBILITY */
-        h2, h3, .section-header, label, span, .no-games {
-            color: white !important;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
-        }
-
-        /* 4. HIDE UI ELEMENTS UNNECESSARY FOR TV TICKER */
-        #navbar-container, #footer-container, #ticker-button, #ticker-speed, label[for="ticker-speed"] {
-            display: none !important;
-        }
-
-        /* Clean up spacing for TV */
-        #scoreboard {
-            padding: 10px;
-        }
+        h2, h3, .section-header { color: white !important; }
+        #navbar-container, #footer-container, #ticker-button { display: none !important; }
     </style>
-    <script src="../assets/analytics.js"></script>
 </head>
 <body style="background: transparent !important;">
-    <div id="navbar-container"></div>
-
     <div id="scoreboard">
-      <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-        <h2 style="margin: 0;">All Games Today</h2>
-      </div>
-
       <div id="live-section">
         <h3 class="section-header">🔴 Live Games</h3>
         <div id="liveGamesContainer" class="games-container"></div>
-        <div id="no-live-games" class="no-games">No live games at the moment</div>
       </div>
-
       <div id="scheduled-section">
         <h3 class="section-header">📅 Scheduled Games</h3>
         <div id="scheduledGamesContainer" class="games-container"></div>
-        <div id="no-scheduled-games" class="no-games">No scheduled games today</div>
       </div>
-
       <div id="finished-section">
         <h3 class="section-header">✅ Finished Games</h3>
         <div id="finishedGamesContainer" class="games-container"></div>
-        <div id="no-finished-games" class="no-games">No finished games today</div>
       </div>
     </div>
 
-    <script src="navbarLoader.js"></script>
-    <script src="navbar.js"></script>
     <script src="aio.js"></script>
-    <div id="footer-container"></div>
+    <script>
+        // THE NUCLEAR OPTION: If CSS fails, this JavaScript will kill the grey background
+        window.onload = function() {
+            document.body.style.backgroundColor = "transparent";
+            document.documentElement.style.backgroundColor = "transparent";
+        };
+    </script>
 </body>
 </html>

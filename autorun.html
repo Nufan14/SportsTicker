@@ -10,19 +10,17 @@
 
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', Roboto, sans-serif; }
         
-        /* THE STADIUM BACKGROUND */
         #bg-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=2070&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
-            filter: blur(15px) brightness(0.3); /* Heavy blur keeps text readable */
+            filter: blur(15px) brightness(0.3);
             z-index: -1;
             transition: opacity 1s ease-in-out;
         }
 
-        /* Modern Header */
         #sport-header {
             background: linear-gradient(180deg, rgba(30,30,30,0.9) 0%, rgba(0,0,0,1) 100%);
             color: #fff;
@@ -34,6 +32,8 @@
             text-transform: uppercase;
             letter-spacing: 4px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 10; /* Keep header above the iframe */
         }
 
         .tv-frame {
@@ -41,6 +41,7 @@
             height: calc(100vh - 85px);
             overflow: hidden;
             position: relative;
+            background: transparent !important; /* Force this container to be clear */
         }
 
         iframe { 
@@ -52,6 +53,7 @@
             transform: scale(0.9); 
             transform-origin: top center;
             transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: transparent !important; /* Force iframe internal bg clear */
         }
     </style>
 </head>
@@ -59,7 +61,7 @@
     <div id="bg-overlay"></div>
     <div id="sport-header">LOADING...</div>
     <div class="tv-frame">
-        <iframe id="ticker-frame" src="nfl/aio.html"></iframe>
+        <iframe id="ticker-frame" src="nfl/aio.html" allowtransparency="true"></iframe>
     </div>
 
     <script>
@@ -85,7 +87,7 @@
             const current = leagues[currentIndex];
             
             frame.style.opacity = 0;
-            frame.style.transform = "scale(0.85) translateY(20px)"; // Smooth slide effect
+            frame.style.transform = "scale(0.85) translateY(20px)"; 
             
             setTimeout(() => {
                 header.innerText = current.name;

@@ -2,94 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
-        body { 
-            background: #f0f2f5; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; padding: 10px; 
-            overflow-x: hidden; 
-        }
-
-        .centered-logo {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 400px; opacity: 0.04; z-index: -1; pointer-events: none;
-        }
-
-        /* Container to stop the "stretched" look */
-        .main-wrapper {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
+        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; opacity: 0.04; z-index: -1; }
+        
+        /* This wrapper is the key to fixing the stretching */
+        .main-wrapper { max-width: 1100px; margin: 0 auto; }
 
         .section-header { 
-            background: #1a1a1a; color: white; padding: 10px; 
-            text-align: center; border-radius: 6px; 
-            font-weight: bold; text-transform: uppercase; font-size: 0.9rem;
-            margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 10px;
+            background: #1a1a1a; color: white; padding: 10px; text-align: center; 
+            border-radius: 6px; font-weight: bold; margin: 15px 0 10px 0;
         }
 
-        /* Top Live Section */
-        #live-section { margin-bottom: 25px; }
+        .columns-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; }
 
-        /* Split Columns */
-        .columns-grid {
-            display: grid;
-            grid-template-columns: 1.2fr 1fr; /* Give more room to results for scorers */
-            gap: 20px;
-        }
-
-        /* Game Card Styling */
         .game-card {
             background: white; border-radius: 8px; margin-bottom: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            display: flex; flex-direction: column;
-            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column;
         }
 
-        .row-content {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 15px;
-        }
-
+        .row-content { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; }
         .status-tag { width: 55px; font-size: 0.75rem; color: #d32f2f; font-weight: bold; }
-        
-        /* Fixed widths for team boxes to keep them centered */
         .team-unit { display: flex; align-items: center; gap: 8px; width: 40%; }
         .team-unit.home { justify-content: flex-end; text-align: right; }
         .team-unit.away { justify-content: flex-start; text-align: left; }
-        
-        .team-label { font-size: 0.95rem; font-weight: 600; color: #333; }
-        
-        .score-display { 
-            background: #222; color: #fff; 
-            min-width: 60px; text-align: center; 
-            font-weight: 800; font-size: 1.1rem;
-            padding: 4px 0; border-radius: 4px;
-        }
+        .score-display { background: #222; color: #fff; min-width: 60px; text-align: center; font-weight: 800; padding: 4px 0; border-radius: 4px; }
 
-        /* Scorer Bar */
         .scorer-footer {
-            background: #f9f9f9; padding: 6px 15px;
-            font-size: 0.75rem; color: #666; font-style: italic;
+            background: #f9f9f9; padding: 6px 15px; font-size: 0.75rem; color: #666; 
             border-top: 1px solid #eee; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;
-        }
-
-        .live-pulse { border-left: 5px solid #d32f2f; }
-        
-        @media (max-width: 900px) {
-            .columns-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <img src="" id="league-logo" class="centered-logo">
-    
     <div class="main-wrapper">
-        <div id="live-section">
-            <div class="section-header">🔴 LIVE MATCHES</div>
-            <div id="liveGamesContainer"></div>
-        </div>
+        <div class="section-header">🔴 LIVE MATCHES</div>
+        <div id="liveGamesContainer"></div>
 
         <div class="columns-grid">
             <div>
@@ -102,7 +51,6 @@
             </div>
         </div>
     </div>
-
-    <script src="aio.js?v=2.1"></script>
+    <script src="aio.js"></script>
 </body>
 </html>

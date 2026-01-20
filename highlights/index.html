@@ -68,7 +68,7 @@
                     return a.date - b.date;
                 });
 
-                list.innerHTML = events.slice(0, 10).map(item => {
+                list.innerHTML = events.slice(0, 15).map(item => {
                     const e = item.event;
                     const stat = e.fullStatus.type;
                     const home = e.competitors.find(c => c.homeAway === 'home') || e.competitors[0];

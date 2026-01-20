@@ -95,7 +95,7 @@
                         const row = `<div class="game-row">
                             <div class="row-status">${label}</div>
                             <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" class="team-logo"></div>
-                            <div class="row-score">${status === 'pre' ? 'VS' : away.score + ' - ' + home.score}</div>
+                            <div class="row-score">${status === 'pre' ? 'VS' : home.score + ' - ' + away.score}</div>
                             <div class="team-box away"><img src="${away.team.logo}" class="team-logo"><span>${away.team.shortDisplayName || away.team.name}</span></div>
                         </div>`;
                         if (status === 'in') liveHTML += row;

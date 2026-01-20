@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
+        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; opacity: 0.05; z-index: -1; pointer-events: none; }
+        #live-section { width: 100%; margin-bottom: 20px; display: none; }
+        .section-header { background: #003399; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.85rem; }
+        .row-status { width: 95px; font-size: 0.65rem; color: #003399; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
+        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
+        .team-box.home { justify-content: flex-end; text-align: right; }
+        .team-box.away { justify-content: flex-start; text-align: left; }
+        .row-score { font-weight: 800; background: #eee; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
+        img.team-logo { width: 22px; height: 22px; object-fit: contain; }
+    </style>
+</head>
+<body>
+    <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/uefa.champions.png" class="centered-logo">
+    <div id="live-section"><div class="section-header">🇪🇺 Champions League LIVE</div><div id="liveGames"></div></div>
+    <div class="columns-container">
+        <div><div class="section-header">✅ Recent Results</div><div id="finishedGames"></div></div>
+        <div><div class="section-header">📅 Upcoming Fixtures</div><div id="scheduledGames"></div></div>
+    </div>
+    <script>
+        async function update() {
+            try {
+                const ts = Date.now();
+                const now = new Date();
+                const fmt = (d) => d.toISOString().split('T')[0].replace(/-/g, "");
+                const start = new Date(); start.setDate(now.getDate() - 10);
+                const end = new Date(); end.setDate(now.getDate() + 10);
+                
+                const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${fmt(start)}-${fmt(end)}&limit=100&cb=${ts}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                const live = document.getElementById('liveGames');
+                const sched = document.getElementById('scheduledGames');
+                const fin = document.getElementById('finishedGames');
+                
+                let liveHTML = ''; let finHTML = []; let schedHTML = [];
+                if (data.events) {
+                    data.events.forEach(e => {
+                        const status = e.status.type.state;
+                        const teams = e.competitions[0].competitors;
+                        const home = teams.find(t => t.homeAway === 'home');
+                        const away = teams.find(t => t.homeAway === 'away');
+                        let label = e.status.type.shortDetail;
+                        if (status === 'pre') {
+                            const d = new Date(e.date);
+                            label = d.toLocaleDateString([], {month:'short', day:'numeric'}) + "<br>" + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
+                        }
+                        const row = `<div class="game-row">
+                            <div class="row-status">${label}</div>
+                            <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" class="team-logo"></div>
+                            <div class="row-score">${status === 'pre' ? 'VS' : away.score + ' - ' + home.score}</div>
+                            <div class="team-box away"><img src="${away.team.logo}" class="team-logo"><span>${away.team.shortDisplayName || away.team.name}</span></div>
+                        </div>`;
+                        if (status === 'in') liveHTML += row;
+                        else if (status === 'post') finHTML.push(row);
+                        else if (status === 'pre') schedHTML.push(row);
+                    });
+                }
+                live.innerHTML = liveHTML;
+                fin.innerHTML = finHTML.slice(-15).reverse().join('');
+                sched.innerHTML = schedHTML.slice(0, 15).join('');
+                document.getElementById('live-section').style.display = liveHTML ? 'block' : 'none';
+            } catch (err) { console.error("UCL Error:", err); }
+        }
+        update(); setInterval(update, 60000);
+    </script>
+</body>
+</html>

@@ -2,94 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-<style>
-    body { 
-        background-color: #f4f4f4; 
-        font-family: 'Arial', sans-serif; 
-        margin: 0; 
-        padding: 10px; 
-        overflow-x: hidden; 
-    }
-
-    /* THE WATERMARK: This sits behind the columns */
-    .centered-logo { 
-        position: fixed; 
-        top: 50%; 
-        left: 50%; 
-        transform: translate(-50%, -50%); 
-        width: 450px; 
-        opacity: 0.05; 
-        z-index: -1; 
-        pointer-events: none; 
-    }
-
-    /* THE GRID: Restoring your 2-column look */
-    .columns-container { 
-        display: grid; 
-        grid-template-columns: 1fr 1fr; 
-        gap: 20px; 
-        width: 100%; 
-    }
-
-    .section-header { 
-        background: #222; 
-        color: #fff; 
-        padding: 10px 0; 
-        text-align: center; 
-        margin-bottom: 12px; 
-        border-radius: 4px; 
-        font-size: 1.1rem; 
-        font-weight: bold; 
-        text-transform: uppercase; 
-        letter-spacing: 1px;
-    }
-
-    .game-row { 
-        background: white; 
-        display: flex; 
-        align-items: center; 
-        justify-content: space-between; 
-        padding: 10px 15px; 
-        margin-bottom: 6px; 
-        border-radius: 6px; 
-        box-shadow: 0 1px 4px rgba(0,0,0,0.1); 
-        font-size: 0.85rem; 
-    }
-
-    /* Row Text & Logo Styles */
-    .row-status { width: 95px; font-size: 0.65rem; color: #cc0000; font-weight: bold; text-transform: uppercase; }
-    .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
-    .team-box.home { justify-content: flex-end; text-align: right; }
-    .team-box.away { justify-content: flex-start; text-align: left; }
-    .row-score { font-weight: 800; background: #eee; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
-    img.team-logo { width: 22px; height: 22px; object-fit: contain; }
-</style>
-
+    <style>
+        body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
+        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; opacity: 0.05; z-index: -1; pointer-events: none; }
+        #live-section { width: 100%; margin-bottom: 20px; display: none; }
+        .section-header { background: #222; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.85rem; }
+        .row-status { width: 95px; font-size: 0.65rem; color: #cc0000; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
+        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
+        .team-box.home { justify-content: flex-end; text-align: right; }
+        .team-box.away { justify-content: flex-start; text-align: left; }
+        .row-score { font-weight: 800; background: #eee; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
+        img.team-logo { width: 22px; height: 22px; object-fit: contain; }
+    </style>
+</head>
 <body>
     <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/nba.png" class="centered-logo">
-
+    <div id="live-section"><div class="section-header">🏀 NBA Live Games</div><div id="liveGames"></div></div>
     <div class="columns-container">
-        <div id="live-section">
-            <div class="section-header">🏀 NBA Live Games</div>
-            <div id="liveGames"></div>
-        </div>
-
-        <div id="results-section">
-            <div class="section-header">✅ Recent Results</div>
-            <div id="recentResults"></div>
-        </div>
-    </div>
-</body>
-    <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/nba.png" class="centered-logo">
-
-    <div class="columns-container">
-        <div id="live-section">
-            <div class="section-header">🏀 NBA Live Games</div>
-            <div id="liveGames"></div>
-        </div>
-        
-        <div id="results-section">
-             </div>
+        <div><div class="section-header">✅ Recent Results</div><div id="finishedGames"></div></div>
+        <div><div class="section-header">📅 Upcoming Games</div><div id="scheduledGames"></div></div>
     </div>
 
     <script>
@@ -97,31 +30,35 @@
             try {
                 const ts = Date.now();
                 const now = new Date();
-                
-                // Helper to format date as YYYYMMDD
                 const fmt = (d) => d.toISOString().split('T')[0].replace(/-/g, "");
                 
                 const start = new Date(); start.setDate(now.getDate() - 7);
                 const end = new Date(); end.setDate(now.getDate() + 7);
                 
-                // Fetching with a simple date range
-                const url = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${fmt(start)}-${fmt(end)}&limit=100&cb=${ts}`;
-                const res = await fetch(url);
-                const data = await res.json();
+                // Try range fetch first
+                let url = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${fmt(start)}-${fmt(end)}&limit=100&cb=${ts}`;
+                let res = await fetch(url);
+                let data = await res.json();
                 
+                // Fallback: If range is empty, just fetch current scoreboard
+                if (!data.events || data.events.length === 0) {
+                    url = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?limit=100&cb=${ts}`;
+                    res = await fetch(url);
+                    data = await res.json();
+                }
+
                 const live = document.getElementById('liveGames');
                 const sched = document.getElementById('scheduledGames');
                 const fin = document.getElementById('finishedGames');
                 
                 let liveHTML = ''; let finHTML = []; let schedHTML = [];
 
-                if (data.events && data.events.length > 0) {
+                if (data.events) {
                     data.events.forEach(e => {
                         const status = e.status.type.state;
                         const teams = e.competitions[0].competitors;
-                        // NBA logic: homeAway property is the safest way to find teams
                         const home = teams.find(t => t.homeAway === 'home');
-                        const away = teams.find(t => t.homeAway === 'away');
+                        const away = teams.find(t => t.awayAway === 'away' || t.homeAway !== 'home'); // Safety check
                         
                         let label = e.status.type.shortDetail;
                         if (status === 'pre') {
@@ -129,11 +66,10 @@
                             label = d.toLocaleDateString([], {month:'short', day:'numeric'}) + "<br>" + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
                         }
 
-                        const row = `
-                        <div class="game-row">
+                        const row = `<div class="game-row">
                             <div class="row-status">${label}</div>
                             <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" class="team-logo"></div>
-                            <div class="row-score">${status === 'pre' ? 'VS' : home.score + ' - ' + away.score}</div>
+                            <div class="row-score">${status === 'pre' ? 'VS' : away.score + ' - ' + home.score}</div>
                             <div class="team-box away"><img src="${away.team.logo}" class="team-logo"><span>${away.team.shortDisplayName || away.team.name}</span></div>
                         </div>`;
 

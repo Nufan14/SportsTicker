@@ -3,60 +3,87 @@
 <head>
     <meta charset="UTF-8" />
     <style>
+        /* 1. RESET & BASE */
         html, body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Arial', sans-serif; }
+        .content-wrapper { padding: 15px; }
 
-        /* THE CORNER LOGO (The "TV Bug") */
-        .corner-logo {
-            position: fixed;
-            top: 10px;
+        /* 2. THE NEW HEADER SYSTEM (Logo in Corner) */
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #003399;
+            color: #fff;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            position: relative; /* Allows logo to be placed inside */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .header-logo {
+            height: 35px; 
+            position: absolute;
             right: 15px;
-            width: 60px; /* Small and discrete */
-            z-index: 9999; /* Always on top */
-            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2)); /* Makes it pop */
-            pointer-events: none;
+            filter: drop-shadow(0px 0px 3px rgba(255,255,255,0.4));
         }
 
-        .content-wrapper { padding: 10px; }
-
-        /* Modified Header to make room for the logo */
-        .section-header { 
-            background: #003399; 
-            color: #fff; 
-            padding: 10px 0; 
-            text-align: center; 
-            margin-bottom: 12px; 
-            border-radius: 4px; 
-            font-size: 1.1rem; 
-            font-weight: bold; 
+        .header-text {
+            font-size: 1.1rem;
+            font-weight: bold;
             text-transform: uppercase;
-            padding-right: 60px; /* Leaves space so text doesn't hit the logo */
+            letter-spacing: 1px;
         }
 
+        /* 3. LAYOUT & ROWS */
         .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.85rem; }
+        .game-row { 
+            background: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px 15px; 
+            margin-bottom: 8px; 
+            border-radius: 6px; 
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1); 
+            font-size: 0.85rem; 
+        }
+
         .row-status { width: 95px; font-size: 0.65rem; color: #003399; font-weight: bold; text-transform: uppercase; }
         .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
         .team-box.home { justify-content: flex-end; text-align: right; }
+        .team-box.away { justify-content: flex-start; text-align: left; }
         .row-score { font-weight: 800; background: #eee; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
         img.team-logo { width: 22px; height: 22px; object-fit: contain; }
+
+        #live-section { display: none; margin-bottom: 25px; }
     </style>
 </head>
 <body>
-    <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/uefa.champions.png" class="corner-logo">
 
     <div class="content-wrapper">
         <div id="live-section">
-            <div class="section-header">🇪🇺 Champions League LIVE</div>
+            <div class="header-container">
+                <span class="header-text">🇪🇺 Champions League LIVE</span>
+                <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/uefa.champions.png" class="header-logo">
+            </div>
             <div id="liveGames"></div>
         </div>
         
         <div class="columns-container">
             <div>
-                <div class="section-header">✅ Recent Results</div>
+                <div class="header-container">
+                    <span class="header-text">✅ Recent Results</span>
+                    <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/uefa.champions.png" class="header-logo">
+                </div>
                 <div id="finishedGames"></div>
             </div>
+
             <div>
-                <div class="section-header">📅 Upcoming Fixtures</div>
+                <div class="header-container">
+                    <span class="header-text">📅 Upcoming Fixtures</span>
+                    <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/uefa.champions.png" class="header-logo">
+                </div>
                 <div id="scheduledGames"></div>
             </div>
         </div>
@@ -66,7 +93,14 @@
         async function update() {
             try {
                 const ts = Date.now();
-                const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?limit=100&cb=${ts}`;
+                const now = new Date();
+                const fmt = (d) => d.toISOString().split('T')[0].replace(/-/g, "");
+                
+                // Fixture Fix: Looking 10 days back and 14 days forward
+                const start = new Date(); start.setDate(now.getDate() - 10);
+                const end = new Date(); end.setDate(now.getDate() + 14);
+                
+                const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${fmt(start)}-${fmt(end)}&limit=100&cb=${ts}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 
@@ -80,8 +114,10 @@
                     data.events.forEach(e => {
                         const status = e.status.type.state;
                         const competitors = e.competitions[0].competitors;
-                        const home = competitors.find(team => team.homeAway === 'home');
-                        const away = competitors.find(team => team.homeAway === 'away');
+                        
+                        // Score Fix: Identifying teams by Role
+                        const home = competitors.find(t => t.homeAway === 'home');
+                        const away = competitors.find(t => t.homeAway === 'away');
                         
                         let label = e.status.type.shortDetail;
                         if (status === 'pre') {
@@ -103,14 +139,7 @@
                         else if (status === 'pre') schedHTML.push(row);
                     });
                 }
+                
                 live.innerHTML = liveHTML;
-                fin.innerHTML = finHTML.slice(-15).reverse().join('');
-                sched.innerHTML = schedHTML.slice(0, 15).join('');
-                document.getElementById('live-section').style.display = liveHTML ? 'block' : 'none';
-            } catch (err) { console.error("UCL Error:", err); }
-        }
-        update(); 
-        setInterval(update, 60000);
-    </script>
-</body>
-</html>
+                // Show more finished games (last 20) and more scheduled (next 20)
+                fin.innerHTML = finHTML.slice(-20).reverse().join('');

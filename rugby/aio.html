@@ -1,118 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <style>
-        /* SAFE WATERMARK SYSTEM */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 450px;
-            height: 450px;
-            background-image: url('https://a.espncdn.com/i/teamlogos/leagues/lrg/fra.1.png');
-            background-repeat: no-repeat;
-            background-size: contain;
-            opacity: 0.04;
-            z-index: -1;
-            pointer-events: none;
+        /* 1. LAYER SYSTEM */
+        html, body { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Arial', sans-serif; }
+        .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f4f4f4; z-index: -2; }
+        
+        #watermark { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 450px; opacity: 0.12; z-index: -1; pointer-events: none; 
         }
 
-        body { background: #f4f4f4; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 10px; }
-        .header { background: #1a1a1a; color: #fff; padding: 12px; text-align: center; border-radius: 8px; margin-bottom: 15px; font-weight: bold; text-transform: uppercase; border-bottom: 4px solid #d41111; }
-        .main-container { display: grid; grid-template-columns: 1.4fr 1fr; gap: 15px; }
-        .section { background: rgba(255, 255, 255, 0.9); border-radius: 8px; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .section-title { font-size: 0.9rem; font-weight: 800; color: #d41111; margin-bottom: 10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; }
-        
-        .game-row { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; font-size: 0.8rem; }
-        .team-info { display: flex; align-items: center; gap: 8px; flex: 1; font-weight: 600; }
-        .team-logo { width: 22px; height: 22px; object-fit: contain; background: #fff; border-radius: 50%; }
-        .score { font-weight: 900; background: #333; color: white; padding: 3px 10px; border-radius: 4px; min-width: 35px; text-align: center; margin: 0 10px; }
-        .status { font-size: 0.7rem; color: #d41111; width: 75px; text-align: right; font-weight: bold; }
+        .content-wrapper { position: relative; z-index: 1; padding: 10px; }
 
-        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-        th { text-align: left; color: #888; padding: 5px; border-bottom: 1px solid #eee; }
-        td { padding: 8px 5px; border-bottom: 1px solid #f9f9f9; }
-        .pts { font-weight: bold; color: #d41111; text-align: center; background: #fff5f5; }
-        
-        #live-section { display: none; margin-bottom: 15px; border: 2px solid #d41111; }
+        /* 2. UI STYLES */
+        .section-header { background: #000; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .game-row { background: rgba(255, 255, 255, 0.85); display: flex; align-items: center; justify-content: space-between; padding: 12px; margin-bottom: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .row-status { width: 100px; font-size: 0.7rem; color: #e41e26; font-weight: bold; text-transform: uppercase; }
+        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; font-size: 0.9rem; }
+        .team-box.home { justify-content: flex-end; text-align: right; }
+        .row-score { font-weight: 800; background: #333; color: #fff; padding: 5px 15px; border-radius: 4px; margin: 0 15px; min-width: 60px; text-align: center; }
+        img.team-logo { width: 28px; height: 28px; object-fit: contain; }
     </style>
 </head>
 <body>
+    <div class="bg-layer"></div>
+    <img id="watermark" src="https://a.espncdn.com/i/teamlogos/leagues/lrg/fra.1.png">
 
-<div class="header">🇫🇷 TOP 14 RUGBY</div>
-
-<div id="live-section" class="section">
-    <div class="section-title">🔴 LIVE NOW</div>
-    <div id="live-games"></div>
-</div>
-
-<div class="main-container">
-    <div class="section">
-        <div class="section-title">📅 SCHEDULE & RESULTS</div>
-        <div id="scores-body">Loading fixtures...</div>
+    <div class="content-wrapper">
+        <div class="section-header">🇫🇷 TOP 14 RUGBY - SCHEDULE & RESULTS</div>
+        <div id="rugbyMatches"></div>
     </div>
 
-    <div class="section">
-        <div class="section-title">📊 STANDINGS</div>
-        <table>
-            <thead><tr><th>#</th><th>TEAM</th><th style="text-align:center">PL</th><th style="text-align:center">PTS</th></tr></thead>
-            <tbody id="standings-body"></tbody>
-        </table>
-    </div>
-</div>
-
-<script>
-    const LEAGUE = "fra.1";
-
-    async function updateData() {
-        const ts = Date.now();
-        try {
-            // This uses the numeric ID 18065 which is more reliable for Top 14
-const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?league=18065&cb=${Date.now()}`);
-            const data = await res.json();
-            
-            let gamesHTML = "";
-            let stHTML = "";
-
-            // FILTER specifically for Top 14 if it exists in the feed
-            const top14Games = data.events.filter(e => e.league && e.league.slug === "fra.1" || e.shortName.includes("TOP 14"));
-
-            // If the filtered list is empty, just show ALL rugby for now to prove it works
-            const displayGames = top14Games.length > 0 ? top14Games : data.events;
-
-            displayGames.forEach(e => {
-                const status = e.status.type.state;
-                const home = e.competitions[0].competitors.find(t => t.homeAway === 'home');
-                const away = e.competitions[0].competitors.find(t => t.homeAway === 'away');
+    <script>
+        async function update() {
+            try {
+                // We use the specific Top 14 League ID: 18065
+                const url = `https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?league=18065&cb=${Date.now()}`;
+                const res = await fetch(url);
+                const data = await res.json();
                 
-                gamesHTML += `
-                    <div class="game-row">
-                        <div class="team-info">
-                            <img class="team-logo" src="${away.team.logo || ''}">
-                            <span>${away.team.shortDisplayName}</span>
-                        </div>
-                        <div class="score">${status === 'pre' ? 'VS' : away.score + '-' + home.score}</div>
-                        <div class="team-info" style="justify-content: flex-end;">
-                            <span>${home.team.shortDisplayName}</span>
-                            <img class="team-logo" src="${home.team.logo || ''}">
-                        </div>
-                        <div class="status">${e.status.type.shortDetail}</div>
-                    </div>`;
-            });
-            document.getElementById('scores-body').innerHTML = gamesHTML || "No matches found today.";
+                const container = document.getElementById('rugbyMatches');
+                let html = '';
 
-            // For Standings, we will use a hardcoded check if the API is failing
-            if (!stHTML) {
-                document.getElementById('standings-body').innerHTML = "<tr><td colspan='4' style='text-align:center;'>Waiting for Matchday 15 Table...</td></tr>";
+                // Rugby data often lives in events, but we check if it exists
+                if (data.events && data.events.length > 0) {
+                    data.events.forEach(e => {
+                        const status = e.status.type.shortDetail;
+                        const state = e.status.type.state;
+                        const comp = e.competitions[0];
+                        const home = comp.competitors.find(t => t.homeAway === 'home');
+                        const away = comp.competitors.find(t => t.homeAway === 'away');
+
+                        // Use the score swap fix we discussed
+                        const scoreDisplay = state === 'pre' ? 'VS' : `${home.score} - ${away.score}`;
+
+                        html += `
+                        <div class="game-row">
+                            <div class="row-status">${status}</div>
+                            <div class="team-box home">
+                                <span>${home.team.displayName}</span>
+                                <img src="${home.team.logo || ''}" class="team-logo">
+                            </div>
+                            <div class="row-score">${scoreDisplay}</div>
+                            <div class="team-box away">
+                                <img src="${away.team.logo || ''}" class="team-logo">
+                                <span>${away.team.displayName}</span>
+                            </div>
+                        </div>`;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = "<div style='text-align:center; padding:20px;'>No Top 14 matches found in the current window.</div>";
+                }
+            } catch (err) {
+                console.error("Rugby Load Error:", err);
+                document.getElementById('rugbyMatches').innerHTML = "Error loading Rugby data.";
             }
-        } catch (err) { console.log(err); }
-    }
+        }
 
-    update();
-    setInterval(update, 60000);
-</script>
+        update();
+        setInterval(update, 60000);
+    </script>
 </body>
 </html>

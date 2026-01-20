@@ -56,11 +56,14 @@
 </div>
 
 <script>
-    const LEAGUE_SLUG = "fra.1"; // Top 14
+    // Specific slug for French Top 14
+    const LEAGUE_SLUG = "fra.1"; 
 
     async function getScores() {
         try {
-            const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?league=${LEAGUE_SLUG}`);
+            const ts = Date.now();
+            // Use the broader scoreboard endpoint
+            const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?league=${LEAGUE_SLUG}&cb=${ts}`);
             const data = await res.json();
             
             const liveDiv = document.getElementById('live-games');
@@ -71,75 +74,86 @@
             let gamesHTML = "";
             let liveCount = 0;
 
-            data.events.forEach(event => {
-                const status = event.status.type.state;
-                const home = event.competitions[0].competitors.find(t => t.homeAway === 'home');
-                const away = event.competitions[0].competitors.find(t => t.homeAway === 'away');
-                const clock = event.status.type.shortDetail;
+            if (data.events && data.events.length > 0) {
+                data.events.forEach(event => {
+                    const status = event.status.type.state;
+                    const teams = event.competitions[0].competitors;
+                    const home = teams.find(t => t.homeAway === 'home');
+                    const away = teams.find(t => t.homeAway === 'away');
+                    const clock = event.status.type.shortDetail;
 
-                const row = `
-                    <div class="game-row">
-                        <div class="team-info">
-                            <img class="team-logo" src="${away.team.logo || ''}">
-                            <span>${away.team.shortDisplayName}</span>
-                        </div>
-                        <div class="score">${status === 'pre' ? 'VS' : away.score + '-' + home.score}</div>
-                        <div class="team-info" style="justify-content: flex-end;">
-                            <span>${home.team.shortDisplayName}</span>
-                            <img class="team-logo" src="${home.team.logo || ''}">
-                        </div>
-                        <div class="status">${clock}</div>
-                    </div>`;
+                    const row = `
+                        <div class="game-row">
+                            <div class="team-info">
+                                <img class="team-logo" src="${away.team.logo || ''}">
+                                <span>${away.team.shortDisplayName || away.team.name}</span>
+                            </div>
+                            <div class="score">${status === 'pre' ? 'VS' : away.score + ' - ' + home.score}</div>
+                            <div class="team-info" style="justify-content: flex-end;">
+                                <span>${home.team.shortDisplayName || home.team.name}</span>
+                                <img class="team-logo" src="${home.team.logo || ''}">
+                            </div>
+                            <div class="status">${clock}</div>
+                        </div>`;
 
-                if (status === 'in') {
-                    liveHTML += row;
-                    liveCount++;
-                } else {
-                    gamesHTML += row;
-                }
-            });
+                    if (status === 'in') {
+                        liveHTML += row;
+                        liveCount++;
+                    } else {
+                        gamesHTML += row;
+                    }
+                });
+            } else {
+                gamesHTML = "<div style='text-align:center; padding:20px; color:#999;'>No recent matches found.</div>";
+            }
 
             liveDiv.innerHTML = liveHTML;
             scoresDiv.innerHTML = gamesHTML;
             liveSection.style.display = liveCount > 0 ? 'block' : 'none';
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Rugby Score Error:", e); }
     }
 
     async function getStandings() {
         try {
-            const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/standings?league=${LEAGUE_SLUG}`);
+            const ts = Date.now();
+            // Note: Rugby standings often live under a different organization in the API
+            const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/standings?league=${LEAGUE_SLUG}&cb=${ts}`);
             const data = await res.json();
             const body = document.getElementById('standings-body');
             
             let html = "";
-            // ESPN Rugby standings structure
-            const teams = data.children[0].standings.entries;
             
-            teams.slice(0, 14).forEach((entry, idx) => {
-                const team = entry.team;
-                const stats = entry.stats;
-                const played = stats.find(s => s.name === 'gamesPlayed')?.displayValue || 0;
-                const points = stats.find(s => s.name === 'points')?.displayValue || 0;
+            // Navigate the nested structure specifically for Rugby
+            const standingsData = data.children && data.children[0] ? data.children[0].standings.entries : [];
+            
+            if (standingsData.length > 0) {
+                standingsData.forEach((entry, idx) => {
+                    const team = entry.team;
+                    const stats = entry.stats;
+                    
+                    // Rugby stats names can differ: 'gamesPlayed' and 'points' are standard
+                    const played = stats.find(s => s.name === 'gamesPlayed')?.displayValue || '0';
+                    const points = stats.find(s => s.name === 'points')?.displayValue || '0';
 
-                html += `
-                    <tr>
-                        <td class="rank">${idx + 1}</td>
-                        <td style="display:flex; align-items:center; gap:5px;">
-                            <img src="${team.logos[0].href}" style="width:15px;height:15px;">
-                            ${team.shortDisplayName}
-                        </td>
-                        <td>${played}</td>
-                        <td class="pts">${points}</td>
-                    </tr>`;
-            });
+                    html += `
+                        <tr>
+                            <td class="rank">${idx + 1}</td>
+                            <td style="display:flex; align-items:center; gap:5px;">
+                                <img src="${team.logos ? team.logos[0].href : ''}" style="width:18px;height:18px;">
+                                ${team.shortDisplayName || team.name}
+                            </td>
+                            <td>${played}</td>
+                            <td class="pts">${points}</td>
+                        </tr>`;
+                });
+            } else {
+                html = "<tr><td colspan='4' style='text-align:center;'>Standings currently unavailable</td></tr>";
+            }
             body.innerHTML = html;
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Rugby Standings Error:", e); }
     }
 
     getScores();
     getStandings();
-    setInterval(getScores, 60000); // Refresh scores every minute
+    setInterval(getScores, 60000); 
 </script>
-
-</body>
-</html>

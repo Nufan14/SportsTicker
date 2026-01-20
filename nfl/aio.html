@@ -2,77 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NFL Ticker</title>
-    <link rel="stylesheet" href="style.css" />
     <style>
-        body { 
-            background-color: #f4f4f4 !important; 
-            margin: 0 !important;
-            padding: 20px !important;
-            min-height: 100vh;
-        }
-
-        #scoreboard { 
-            position: relative; 
-            z-index: 10; 
-            background: transparent !important; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* NEW SCALING LOGO: Placed inside the scoreboard content flow */
-        .centered-logo {
-            position: absolute;
-            top: 200px; /* Adjust this so it sits behind the first few games */
-            width: 500px;
-            opacity: 0.15;
-            z-index: -1; /* Behind the cards */
-            pointer-events: none;
-        }
-
-        .centered-logo img {
-            width: 100%;
-            height: auto;
-        }
-
-        /* Cleaning up UI for TV */
-        #navbar-container, #footer-container, #ticker-button, #ticker-speed, label { 
-            display: none !important; 
-        }
-
-        .section-header {
-            color: #333 !important;
-            text-align: center;
-            width: 100%;
-            margin: 20px 0;
-            background: rgba(244, 244, 244, 0.8) !important;
-        }
+        body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
+        .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; opacity: 0.05; z-index: -1; pointer-events: none; }
+        #live-section { width: 100%; margin-bottom: 20px; display: none; }
+        .section-header { background: #222; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.85rem; }
+        .row-status { width: 95px; font-size: 0.65rem; color: #cc0000; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
+        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
+        .team-box.home { justify-content: flex-end; text-align: right; }
+        .team-box.away { justify-content: flex-start; text-align: left; }
+        .row-score { font-weight: 800; background: #eee; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
+        img.team-logo { width: 22px; height: 22px; object-fit: contain; }
     </style>
 </head>
 <body>
-    <div id="scoreboard">
-        <div class="centered-logo">
-            <img src="https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg" alt="NFL Logo">
+    <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/nfl.png" class="centered-logo">
+    
+    <div id="live-section">
+        <div class="section-header">🏈 NFL Live Games</div>
+        <div id="liveGames"></div>
+    </div>
+    
+    <div class="columns-container">
+        <div>
+            <div class="section-header">✅ Recent Results</div>
+            <div id="finishedGames"></div>
         </div>
-
-        <div id="live-section">
-            <h3 class="section-header">🔴 Live Games</h3>
-            <div id="liveGamesContainer" class="games-container"></div>
-        </div>
-        <div id="scheduled-section">
-            <h3 class="section-header">📅 Scheduled Games</h3>
-            <div id="scheduledGamesContainer" class="games-container"></div>
-        </div>
-        <div id="finished-section">
-            <h3 class="section-header">✅ Finished Games</h3>
-            <div id="finishedGamesContainer" class="games-container"></div>
+        <div>
+            <div class="section-header">📅 Upcoming Games</div>
+            <div id="scheduledGames"></div>
         </div>
     </div>
 
-    <script src="navbarLoader.js"></script>
-    <script src="navbar.js"></script>
-    <script src="aio.js"></script>
-</body>
-</html>
+    <script>
+        async function update() {
+            try {
+                const ts = Date.now();
+                const now = new Date();

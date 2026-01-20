@@ -4,55 +4,72 @@
     <meta charset="UTF-8" />
 <style>
     body {
-        /* A clean, professional off-white/light grey */
-        background-color: #f0f2f5; 
-        font-family: 'Segoe UI', Arial, sans-serif;
+        /* Your preferred light background */
+        background-color: #f4f4f4;
+        font-family: 'Arial', sans-serif;
         margin: 0;
         padding: 10px;
-        color: #333;
         overflow-x: hidden;
     }
 
-    /* THE WATERMARK: This sits behind everything */
-    body::before {
-        content: "";
+    /* THE LOGO: Stays fixed in the center while you scroll */
+    .centered-logo {
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 70%; /* Large and professional */
-        height: 70%;
-        background-image: url('https://a.espncdn.com/i/teamlogos/leagues/500/nba.png');
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
-        opacity: 0.04; /* EXTREMELY subtle so it doesn't fight the text */
+        width: 450px;
+        opacity: 0.05; /* Increase to 0.1 if it's too faint */
         z-index: -1;
         pointer-events: none;
     }
 
+    /* THE GRID: This fixes the side-by-side games */
     #live-section {
+        width: 100%;
+        margin-bottom: 20px;
         display: block !important;
-        position: relative;
     }
 
+    .columns-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* This puts them side-by-side */
+        gap: 20px;
+        width: 100%;
+    }
+
+    .section-header {
+        background: #222;
+        color: #fff;
+        padding: 10px 0;
+        text-align: center;
+        margin-bottom: 12px;
+        border-radius: 4px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* INDIVIDUAL GAME ROWS */
     .game-row {
-        background: white !important;
+        background: white;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 18px;
-        margin-bottom: 8px;
-        border-radius: 8px;
-        /* Subtle shadow to make the rows pop off the light background */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        border: 1px solid #e0e0e0;
+        padding: 10px 15px;
+        margin-bottom: 6px;
+        border-radius: 6px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        font-size: 0.85rem;
     }
 
-    .row-status { width: 90px; font-size: 0.75rem; color: #cc0000; font-weight: bold; text-transform: uppercase; }
-    .team-box { display: flex; align-items: center; gap: 12px; flex: 1; font-weight: 600; color: #222; }
-    .row-score { font-weight: 800; font-size: 1.2rem; background: #f8f8f8; padding: 5px 15px; border-radius: 4px; min-width: 50px; text-align: center; border: 1px solid #ddd; color: #000; }
-    img.team-logo { width: 28px; height: 28px; object-fit: contain; }
+    .row-status { width: 95px; font-size: 0.65rem; color: #cc0000; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
+    .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
+    .team-box.home { justify-content: flex-end; text-align: right; }
+    .team-box.away { justify-content: flex-start; text-align: left; }
+    .row-score { font-weight: 800; background: #eee; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
+    img.team-logo { width: 22px; height: 22px; object-fit: contain; }
 </style>
 </head>
 <body id="live-section">

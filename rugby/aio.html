@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { background: #f0f0f0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 10px; }
+        .header { background: #1a1a1a; color: #fff; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; border-bottom: 4px solid #d41111; }
+        .main-container { display: grid; grid-template-columns: 1.5fr 1fr; gap: 15px; }
+        .section { background: white; border-radius: 8px; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .section-title { font-size: 0.9rem; font-weight: 800; color: #d41111; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; text-transform: uppercase; }
+        
+        /* Game Rows */
+        .game-row { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #f9f9f9; font-size: 0.85rem; }
+        .team-info { display: flex; align-items: center; gap: 8px; flex: 1; }
+        .team-logo { width: 24px; height: 24px; object-fit: contain; }
+        .score { font-weight: 900; background: #333; color: white; padding: 2px 8px; border-radius: 4px; min-width: 30px; text-align: center; }
+        .status { font-size: 0.7rem; color: #666; width: 60px; text-align: right; font-weight: bold; }
+
+        /* Standings Table */
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { text-align: left; color: #999; font-size: 0.7rem; padding: 5px; }
+        td { padding: 6px 5px; border-bottom: 1px solid #eee; }
+        .rank { font-weight: bold; color: #d41111; width: 20px; }
+        .pts { font-weight: bold; background: #fdf2f2; }
+
+        #live-section { grid-column: span 2; display: none; margin-bottom: 15px; }
+        .live-card { background: #fff5f5; border: 2px solid #d41111; }
+    </style>
+</head>
+<body>
+
+<div class="header">🇫🇷 TOP 14 RUGBY</div>
+
+<div id="live-section" class="section live-card">
+    <div class="section-title">🔴 LIVE NOW</div>
+    <div id="live-games"></div>
+</div>
+
+<div class="main-container">
+    <div class="section">
+        <div class="section-title">📅 SCHEDULE & RESULTS</div>
+        <div id="scores-container"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">📊 STANDINGS</div>
+        <div id="standings-container">
+            <table>
+                <thead>
+                    <tr><th>#</th><th>TEAM</th><th>PL</th><th>PTS</th></tr>
+                </thead>
+                <tbody id="standings-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const LEAGUE_SLUG = "fra.1"; // Top 14
+
+    async function getScores() {
+        try {
+            const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?league=${LEAGUE_SLUG}`);
+            const data = await res.json();
+            
+            const liveDiv = document.getElementById('live-games');
+            const scoresDiv = document.getElementById('scores-container');
+            const liveSection = document.getElementById('live-section');
+            
+            let liveHTML = "";
+            let gamesHTML = "";
+            let liveCount = 0;
+
+            data.events.forEach(event => {
+                const status = event.status.type.state;
+                const home = event.competitions[0].competitors.find(t => t.homeAway === 'home');
+                const away = event.competitions[0].competitors.find(t => t.homeAway === 'away');
+                const clock = event.status.type.shortDetail;
+
+                const row = `
+                    <div class="game-row">
+                        <div class="team-info">
+                            <img class="team-logo" src="${away.team.logo || ''}">
+                            <span>${away.team.shortDisplayName}</span>
+                        </div>
+                        <div class="score">${status === 'pre' ? 'VS' : away.score + '-' + home.score}</div>
+                        <div class="team-info" style="justify-content: flex-end;">
+                            <span>${home.team.shortDisplayName}</span>
+                            <img class="team-logo" src="${home.team.logo || ''}">
+                        </div>
+                        <div class="status">${clock}</div>
+                    </div>`;
+
+                if (status === 'in') {
+                    liveHTML += row;
+                    liveCount++;
+                } else {
+                    gamesHTML += row;
+                }
+            });
+
+            liveDiv.innerHTML = liveHTML;
+            scoresDiv.innerHTML = gamesHTML;
+            liveSection.style.display = liveCount > 0 ? 'block' : 'none';
+        } catch (e) { console.error(e); }
+    }
+
+    async function getStandings() {
+        try {
+            const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/standings?league=${LEAGUE_SLUG}`);
+            const data = await res.json();
+            const body = document.getElementById('standings-body');
+            
+            let html = "";
+            // ESPN Rugby standings structure
+            const teams = data.children[0].standings.entries;
+            
+            teams.slice(0, 14).forEach((entry, idx) => {
+                const team = entry.team;
+                const stats = entry.stats;
+                const played = stats.find(s => s.name === 'gamesPlayed')?.displayValue || 0;
+                const points = stats.find(s => s.name === 'points')?.displayValue || 0;
+
+                html += `
+                    <tr>
+                        <td class="rank">${idx + 1}</td>
+                        <td style="display:flex; align-items:center; gap:5px;">
+                            <img src="${team.logos[0].href}" style="width:15px;height:15px;">
+                            ${team.shortDisplayName}
+                        </td>
+                        <td>${played}</td>
+                        <td class="pts">${points}</td>
+                    </tr>`;
+            });
+            body.innerHTML = html;
+        } catch (e) { console.error(e); }
+    }
+
+    getScores();
+    getStandings();
+    setInterval(getScores, 60000); // Refresh scores every minute
+</script>
+
+</body>
+</html>

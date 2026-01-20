@@ -19,21 +19,10 @@
 </head>
 <body>
     <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/nba.png" class="centered-logo">
-    
-    <div id="live-section">
-        <div class="section-header">🏀 NBA Live Games</div>
-        <div id="liveGames"></div>
-    </div>
-    
+    <div id="live-section"><div class="section-header">🏀 NBA Live Games</div><div id="liveGames"></div></div>
     <div class="columns-container">
-        <div>
-            <div class="section-header">✅ Recent Results</div>
-            <div id="finishedGames"></div>
-        </div>
-        <div>
-            <div class="section-header">📅 Upcoming Games</div>
-            <div id="scheduledGames"></div>
-        </div>
+        <div><div class="section-header">✅ Recent Results</div><div id="finishedGames"></div></div>
+        <div><div class="section-header">📅 Upcoming Games</div><div id="scheduledGames"></div></div>
     </div>
 
     <script>
@@ -42,12 +31,15 @@
                 const ts = Date.now();
                 const now = new Date();
                 
-                // Set window from 7 days ago to 7 days ahead
-                const start = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
-                const end = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
-
-                // NBA Scoreboard API
-                const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${start}-${end}&limit=100&cb=${ts}`);
+                // Helper to format date as YYYYMMDD
+                const fmt = (d) => d.toISOString().split('T')[0].replace(/-/g, "");
+                
+                const start = new Date(); start.setDate(now.getDate() - 7);
+                const end = new Date(); end.setDate(now.getDate() + 7);
+                
+                // Fetching with a simple date range
+                const url = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${fmt(start)}-${fmt(end)}&limit=100&cb=${ts}`;
+                const res = await fetch(url);
                 const data = await res.json();
                 
                 const live = document.getElementById('liveGames');
@@ -56,10 +48,11 @@
                 
                 let liveHTML = ''; let finHTML = []; let schedHTML = [];
 
-                if (data.events) {
+                if (data.events && data.events.length > 0) {
                     data.events.forEach(e => {
                         const status = e.status.type.state;
                         const teams = e.competitions[0].competitors;
+                        // NBA logic: homeAway property is the safest way to find teams
                         const home = teams.find(t => t.homeAway === 'home');
                         const away = teams.find(t => t.homeAway === 'away');
                         
@@ -84,4 +77,14 @@
                 }
 
                 live.innerHTML = liveHTML;
-                fin.innerHTML = finHTML.
+                fin.innerHTML = finHTML.slice(-15).reverse().join('');
+                sched.innerHTML = schedHTML.slice(0, 15).join('');
+                document.getElementById('live-section').style.display = liveHTML ? 'block' : 'none';
+
+            } catch (err) { console.error("NBA Update Error:", err); }
+        }
+        update();
+        setInterval(update, 60000);
+    </script>
+</body>
+</html>

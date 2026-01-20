@@ -3,22 +3,26 @@
 <head>
     <meta charset="UTF-8" />
     <style>
+    /* THE WATERMARK SYSTEM */
+        html { background: #f4f4f4; } /* Move background color here */
+        
         body::before {
-    content: "";
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 450px;
-    height: 450px;
-    background-image: url('https://a.espncdn.com/i/teamlogos/leagues/lrg/uefa.champions.png');
-    background-repeat: no-repeat;
-    background-size: contain;
-    opacity: 0.05; /* 5% visibility - very light */
-    z-index: -1;
-    pointer-events: none;
-}
-        body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
+            content: "";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            height: 450px;
+            background-image: url('https://a.espncdn.com/i/teamlogos/leagues/lrg/uefa.champions.png');
+            background-repeat: no-repeat;
+            background-size: contain;
+            opacity: 0.1; /* Increased to 10% to make sure you see it first */
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow-x: hidden; background: transparent !important; }
         .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; opacity: 0.05; z-index: -1; pointer-events: none; }
         #live-section { width: 100%; margin-bottom: 20px; display: none; }
         .section-header { background: #003399; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }

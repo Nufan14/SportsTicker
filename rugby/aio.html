@@ -3,83 +3,60 @@
 <head>
     <meta charset="UTF-8" />
     <style>
-        /* 1. LAYER SYSTEM */
-        html, body { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Arial', sans-serif; }
-        .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f4f4f4; z-index: -2; }
-        
-        #watermark { 
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: 450px; opacity: 0.12; z-index: -1; pointer-events: none; 
-        }
-
-        .content-wrapper { position: relative; z-index: 1; padding: 10px; }
-
-        /* 2. UI STYLES */
-        .section-header { background: #000; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
-        .game-row { background: rgba(255, 255, 255, 0.85); display: flex; align-items: center; justify-content: space-between; padding: 12px; margin-bottom: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .row-status { width: 100px; font-size: 0.7rem; color: #e41e26; font-weight: bold; text-transform: uppercase; }
-        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; font-size: 0.9rem; }
+        html, body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Arial', sans-serif; height: 100%; }
+        .logo-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: 0.15; pointer-events: none; }
+        .content { position: relative; z-index: 1; padding: 15px; }
+        .section-header { background: #000; color: #fff; padding: 10px; text-align: center; border-radius: 4px; font-weight: bold; margin-bottom: 15px; }
+        .game-row { background: rgba(255, 255, 255, 0.9); display: flex; align-items: center; justify-content: space-between; padding: 12px; margin-bottom: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
         .team-box.home { justify-content: flex-end; text-align: right; }
         .row-score { font-weight: 800; background: #333; color: #fff; padding: 5px 15px; border-radius: 4px; margin: 0 15px; min-width: 60px; text-align: center; }
-        img.team-logo { width: 28px; height: 28px; object-fit: contain; }
+        img.team-logo { width: 30px; height: 30px; object-fit: contain; }
+        .row-status { width: 100px; font-size: 0.7rem; color: #e41e26; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="bg-layer"></div>
-    <img id="watermark" src="https://a.espncdn.com/i/teamlogos/leagues/lrg/fra.1.png">
+    <div class="logo-container">
+        <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/fra.1.png" width="500">
+    </div>
 
-    <div class="content-wrapper">
-        <div class="section-header">🇫🇷 TOP 14 RUGBY - SCHEDULE & RESULTS</div>
-        <div id="rugbyMatches"></div>
+    <div class="content">
+        <div class="section-header">🇫🇷 TOP 14 RUGBY</div>
+        <div id="rugbyList"></div>
     </div>
 
     <script>
         async function update() {
             try {
-                // We use the specific Top 14 League ID: 18065
-                const url = `https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?league=18065&cb=${Date.now()}`;
+                const now = new Date();
+                const fmt = (d) => d.toISOString().split('T')[0].replace(/-/g, "");
+                const start = new Date(); start.setDate(now.getDate() - 14);
+                const end = new Date(); end.setDate(now.getDate() + 14);
+                
+                // Fetching with a wide date range to ensure we see data
+                const url = `https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?league=18065&dates=${fmt(start)}-${fmt(end)}&cb=${Date.now()}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 
-                const container = document.getElementById('rugbyMatches');
                 let html = '';
-
-                // Rugby data often lives in events, but we check if it exists
                 if (data.events && data.events.length > 0) {
                     data.events.forEach(e => {
-                        const status = e.status.type.shortDetail;
-                        const state = e.status.type.state;
                         const comp = e.competitions[0];
                         const home = comp.competitors.find(t => t.homeAway === 'home');
                         const away = comp.competitors.find(t => t.homeAway === 'away');
-
-                        // Use the score swap fix we discussed
-                        const scoreDisplay = state === 'pre' ? 'VS' : `${home.score} - ${away.score}`;
-
-                        html += `
-                        <div class="game-row">
-                            <div class="row-status">${status}</div>
-                            <div class="team-box home">
-                                <span>${home.team.displayName}</span>
-                                <img src="${home.team.logo || ''}" class="team-logo">
-                            </div>
-                            <div class="row-score">${scoreDisplay}</div>
-                            <div class="team-box away">
-                                <img src="${away.team.logo || ''}" class="team-logo">
-                                <span>${away.team.displayName}</span>
-                            </div>
+                        const score = e.status.type.state === 'pre' ? 'VS' : `${home.score} - ${away.score}`;
+                        
+                        html += `<div class="game-row">
+                            <div class="row-status">${e.status.type.shortDetail}</div>
+                            <div class="team-box home"><span>${home.team.displayName}</span><img src="${home.team.logo}" class="team-logo"></div>
+                            <div class="row-score">${score}</div>
+                            <div class="team-box away"><img src="${away.team.logo}" class="team-logo"><span>${away.team.displayName}</span></div>
                         </div>`;
                     });
-                    container.innerHTML = html;
-                } else {
-                    container.innerHTML = "<div style='text-align:center; padding:20px;'>No Top 14 matches found in the current window.</div>";
-                }
-            } catch (err) {
-                console.error("Rugby Load Error:", err);
-                document.getElementById('rugbyMatches').innerHTML = "Error loading Rugby data.";
-            }
+                } else { html = "<p style='text-align:center'>No matches in the 28-day window.</p>"; }
+                document.getElementById('rugbyList').innerHTML = html;
+            } catch (err) { console.error(err); }
         }
-
         update();
         setInterval(update, 60000);
     </script>

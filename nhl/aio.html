@@ -5,45 +5,39 @@
     <style>
         body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
         .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; opacity: 0.05; z-index: -1; pointer-events: none; }
+        
         #live-section { width: 100%; margin-bottom: 20px; display: none; }
-        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-bottom: 15px; }
-        .section-header { background: #222; color: #fff; padding: 8px 0; text-align: center; margin-bottom: 10px; border-radius: 4px; font-size: 1rem; font-weight: bold; text-transform: uppercase; }
-        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 6px 15px; margin-bottom: 4px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 0.85rem; }
-        .row-status { width: 95px; font-size: 0.65rem; color: #cc0000; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.1; }
-        .team-box { display: flex; align-items: center; gap: 8px; flex: 1; font-weight: 600; }
+        .section-header { background: #222; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Two columns for Results and Fixtures */
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+
+        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.9rem; }
+        .row-status { width: 95px; font-size: 0.7rem; color: #cc0000; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
+        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
         .team-box.home { justify-content: flex-end; text-align: right; }
         .team-box.away { justify-content: flex-start; text-align: left; }
-        .row-score { font-weight: 800; background: #eee; padding: 2px 8px; border-radius: 4px; margin: 0 10px; min-width: 45px; text-align: center; }
-        .standings-wrapper { background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 15px; }
-        .standings-grid { display: flex; gap: 30px; width: 100%; }
-        .standings-col { flex: 1; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-        th { border-bottom: 2px solid #eee; padding: 5px; text-align: left; color: #666; font-size: 0.7rem; }
-        td { padding: 4px 5px; border-bottom: 1px solid #f9f9f9; }
-        .rank { width: 25px; font-weight: bold; color: #999; }
-        .team-cell { display: flex; align-items: center; gap: 6px; font-weight: 600; white-space: nowrap; overflow: hidden; }
-        .stat { text-align: center; width: 30px; }
-        .pts { font-weight: bold; background: #f0f0f0; border-radius: 3px; }
+        .row-score { font-weight: 800; background: #eee; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
+        
+        img.team-logo { width: 24px; height: 24px; object-fit: contain; }
     </style>
 </head>
 <body>
     <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/nhl.png" class="centered-logo">
-    <div id="live-section"><div class="section-header">🏒 NHL Live Games</div><div id="liveGames"></div></div>
-    <div class="columns-container">
-        <div><div class="section-header">✅ Recent Results</div><div id="finishedGames"></div></div>
-        <div><div class="section-header">📅 Upcoming Games</div><div id="scheduledGames"></div></div>
+    
+    <div id="live-section">
+        <div class="section-header">🏒 NHL Live Games</div>
+        <div id="liveGames"></div>
     </div>
-    <div class="standings-wrapper">
-        <div class="section-header">NHL Conference Standings</div>
-        <div class="standings-grid">
-            <div class="standings-col">
-                <div style="font-size:0.65rem; font-weight:bold; color:#888; margin-bottom:4px;">EASTERN CONFERENCE</div>
-                <table><thead><tr><th class="rank">#</th><th>Team</th><th class="stat">GP</th><th class="stat">W</th><th class="stat">L</th><th class="stat">OT</th><th class="stat pts">PTS</th></tr></thead><tbody id="sLeft"></tbody></table>
-            </div>
-            <div class="standings-col">
-                <div style="font-size:0.65rem; font-weight:bold; color:#888; margin-bottom:4px;">WESTERN CONFERENCE</div>
-                <table><thead><tr><th class="rank">#</th><th>Team</th><th class="stat">GP</th><th class="stat">W</th><th class="stat">L</th><th class="stat">OT</th><th class="stat pts">PTS</th></tr></thead><tbody id="sRight"></tbody></table>
-            </div>
+    
+    <div class="columns-container">
+        <div>
+            <div class="section-header">✅ Recent Results</div>
+            <div id="finishedGames"></div>
+        </div>
+        <div>
+            <div class="section-header">📅 Upcoming Games</div>
+            <div id="scheduledGames"></div>
         </div>
     </div>
 
@@ -52,61 +46,62 @@
             try {
                 const ts = Date.now();
                 const now = new Date();
+                // Fetching a wide 20-day window to ensure we have enough games
                 const start = new Date(now.getTime() - (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
                 const end = new Date(now.getTime() + (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
 
                 const gRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard?dates=${start}-${end}&limit=100&cb=${ts}`);
                 const gData = await gRes.json();
+                
                 const live = document.getElementById('liveGames');
                 const sched = document.getElementById('scheduledGames');
                 const fin = document.getElementById('finishedGames');
                 
-                let liveItems = []; let finItems = []; let schedItems = [];
+                let liveItems = []; 
+                let finItems = []; 
+                let schedItems = [];
 
                 if (gData.events) {
+                    // Sort by date to keep them chronological
+                    gData.events.sort((a,b) => new Date(a.date) - new Date(b.date));
+
                     gData.events.forEach(e => {
                         const s = e.status.type.state;
-                        const homeCompetitor = e.competitions[0].competitors.find(c => c.homeAway === 'home');
-                        const awayCompetitor = e.competitions[0].competitors.find(c => c.homeAway === 'away');
+                        const home = e.competitions[0].competitors.find(c => c.homeAway === 'home');
+                        const away = e.competitions[0].competitors.find(c => c.homeAway === 'away');
                         
-                        const html = `<div class="game-row">
-                            <div class="row-status">${e.status.type.shortDetail}</div>
-                            <div class="team-box home"><span>${homeCompetitor.team.shortDisplayName || homeCompetitor.team.name}</span><img src="${homeCompetitor.team.logo}" width="18"></div>
-                            <div class="row-score">${s === 'pre' ? 'VS' : awayCompetitor.score + ' - ' + homeCompetitor.score}</div>
-                            <div class="team-box away"><img src="${awayCompetitor.team.logo}" width="18"><span>${awayCompetitor.team.shortDisplayName || awayCompetitor.team.name}</span></div>
+                        let timeLbl = e.status.type.shortDetail;
+                        if (s === 'pre') {
+                            const d = new Date(e.date);
+                            timeLbl = d.toLocaleDateString([], {month:'short', day:'numeric'}) + "<br>" + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
+                        }
+
+                        const html = `
+                        <div class="game-row">
+                            <div class="row-status">${timeLbl}</div>
+                            <div class="team-box home">
+                                <span>${home.team.shortDisplayName || home.team.name}</span>
+                                <img src="${home.team.logo}" class="team-logo">
+                            </div>
+                            <div class="row-score">${s === 'pre' ? 'VS' : away.score + ' - ' + home.score}</div>
+                            <div class="team-box away">
+                                <img src="${away.team.logo}" class="team-logo">
+                                <span>${away.team.shortDisplayName || away.team.name}</span>
+                            </div>
                         </div>`;
+
                         if (s === 'in') liveItems.push(html);
                         else if (s === 'post') finItems.push(html);
                         else if (s === 'pre') schedItems.push(html);
                     });
                 }
+
+                // Update UI
                 live.innerHTML = liveItems.join('');
-                fin.innerHTML = finItems.slice(-10).reverse().join('');
-                sched.innerHTML = schedItems.slice(0, 10).join('');
-                document.getElementById('live-section').style.display = live.innerHTML ? 'block' : 'none';
+                // Displaying 15 results (reversed so latest is at top)
+                fin.innerHTML = finItems.slice(-15).reverse().join('');
+                // Displaying next 15 scheduled games
+                sched.innerHTML = schedItems.slice(0, 15).join('');
 
-                // NHL Standings Fetch
-                const sRes = await fetch(`https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings?cb=${ts}`);
-                const sData = await sRes.json();
-                const lBody = document.getElementById('sLeft');
-                const rBody = document.getElementById('sRight');
-                lBody.innerHTML = ''; rBody.innerHTML = '';
-
-                if (sData.children) {
-                    sData.children.forEach((conference, idx) => {
-                        // idx 0 is Eastern, idx 1 is Western
-                        conference.standings.entries.forEach((e, i) => {
-                            const getV = (n) => e.stats.find(x => x.name === n)?.value || 0;
-                            const row = `<tr>
-                                <td class="rank">${i + 1}</td>
-                                <td><div class="team-cell"><img src="${e.team.logos[0].href}" width="16"> ${e.team.shortDisplayName}</div></td>
-                                <td class="stat">${getV('gamesPlayed')}</td>
-                                <td class="stat">${getV('wins')}</td>
-                                <td class="stat">${getV('losses')}</td>
-                                <td class="stat">${getV('otLosses')}</td>
-                                <td class="stat pts">${getV('points')}</td>
-                            </tr>`;
-                            if (idx === 0) lBody.innerHTML += row; else rBody.innerHTML += row;
-                        });
-                    });
-                }
+                // Show/Hide live section
+                document.getElementById('live-section').style.display = liveItems.length >

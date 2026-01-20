@@ -3,62 +3,78 @@
 <head>
     <meta charset="UTF-8" />
     <style>
-        html, body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Arial', sans-serif; height: 100%; }
-        .logo-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: 0.15; pointer-events: none; }
-        .content { position: relative; z-index: 1; padding: 15px; }
-        .section-header { background: #000; color: #fff; padding: 10px; text-align: center; border-radius: 4px; font-weight: bold; margin-bottom: 15px; }
-        .game-row { background: rgba(255, 255, 255, 0.9); display: flex; align-items: center; justify-content: space-between; padding: 12px; margin-bottom: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 10px; background-color: #f4f4f4; }
+        .section-header { background: #e41e26; color: #fff; padding: 10px; text-align: center; margin-bottom: 12px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.85rem; }
+        .row-status { width: 100px; font-size: 0.65rem; color: #333; font-weight: bold; text-transform: uppercase; }
         .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
         .team-box.home { justify-content: flex-end; text-align: right; }
-        .row-score { font-weight: 800; background: #333; color: #fff; padding: 5px 15px; border-radius: 4px; margin: 0 15px; min-width: 60px; text-align: center; }
-        img.team-logo { width: 30px; height: 30px; object-fit: contain; }
-        .row-status { width: 100px; font-size: 0.7rem; color: #e41e26; font-weight: bold; }
+        .row-score { font-weight: 800; background: #333; color: #fff; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; }
+        img.team-logo { width: 24px; height: 24px; object-fit: contain; }
     </style>
 </head>
 <body>
-    <div class="logo-container">
-        <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/fra.1.png" width="500">
-    </div>
-
-    <div class="content">
-        <div class="section-header">🇫🇷 TOP 14 RUGBY</div>
-        <div id="rugbyList"></div>
-    </div>
+    <div class="section-header">🏉 Rugby Union - Global Results & Fixtures</div>
+    <div id="rugbyFeed"></div>
 
     <script>
         async function update() {
             try {
+                // We use a date range to ensure the page isn't empty
                 const now = new Date();
                 const fmt = (d) => d.toISOString().split('T')[0].replace(/-/g, "");
                 const start = new Date(); start.setDate(now.getDate() - 14);
                 const end = new Date(); end.setDate(now.getDate() + 14);
+
+                // This is the Global Rugby Union endpoint
+                const url = `https://site.api.espn.com/apis/site/v2/sports/rugby/union/scoreboard?dates=${fmt(start)}-${fmt(end)}&limit=100&cb=${Date.now()}`;
                 
-                // Fetching with a wide date range to ensure we see data
-                const url = `https://site.api.espn.com/apis/site/v2/sports/rugby/union/scoreboard?cb=${Date.now()}`;
                 const res = await fetch(url);
                 const data = await res.json();
-                
+                const container = document.getElementById('rugbyFeed');
                 let html = '';
+
                 if (data.events && data.events.length > 0) {
+                    // Sort events by date so most recent are first
+                    data.events.sort((a, b) => new Date(b.date) - new Date(a.date));
+
                     data.events.forEach(e => {
+                        const status = e.status.type.state;
                         const comp = e.competitions[0];
                         const home = comp.competitors.find(t => t.homeAway === 'home');
                         const away = comp.competitors.find(t => t.homeAway === 'away');
-                        const score = e.status.type.state === 'pre' ? 'VS' : `${home.score} - ${away.score}`;
                         
-                        html += `<div class="game-row">
-                            <div class="row-status">${e.status.type.shortDetail}</div>
-                            <div class="team-box home"><span>${home.team.displayName}</span><img src="${home.team.logo}" class="team-logo"></div>
-                            <div class="row-score">${score}</div>
-                            <div class="team-box away"><img src="${away.team.logo}" class="team-logo"><span>${away.team.displayName}</span></div>
+                        let label = e.status.type.shortDetail;
+                        if (status === 'pre') {
+                            label = new Date(e.date).toLocaleDateString([], {month:'short', day:'numeric'});
+                        }
+
+                        const scoreDisplay = status === 'pre' ? 'VS' : `${home.score} - ${away.score}`;
+
+                        html += `
+                        <div class="game-row">
+                            <div class="row-status">${label}</div>
+                            <div class="team-box home">
+                                <span>${home.team.displayName}</span>
+                                <img src="${home.team.logo || ''}" class="team-logo">
+                            </div>
+                            <div class="row-score">${scoreDisplay}</div>
+                            <div class="team-box away">
+                                <img src="${away.team.logo || ''}" class="team-logo">
+                                <span>${away.team.displayName}</span>
+                            </div>
                         </div>`;
                     });
-                } else { html = "<p style='text-align:center'>No matches in the 28-day window.</p>"; }
-                document.getElementById('rugbyList').innerHTML = html;
-            } catch (err) { console.error(err); }
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = "<div style='text-align:center; padding:20px;'>No major rugby matches found in the last 14 days.</div>";
+                }
+            } catch (err) {
+                console.error("Rugby Feed Error:", err);
+            }
         }
         update();
-        setInterval(update, 60000);
+        setInterval(update, 300000); // Update every 5 minutes
     </script>
 </body>
 </html>

@@ -4,77 +4,51 @@
     <meta charset="UTF-8" />
     <style>
         body { font-family: 'Arial', sans-serif; margin: 0; padding: 10px; background-color: #f4f4f4; }
-        .section-header { background: #e41e26; color: #fff; padding: 10px; text-align: center; margin-bottom: 12px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
-        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.85rem; }
-        .row-status { width: 100px; font-size: 0.65rem; color: #333; font-weight: bold; text-transform: uppercase; }
-        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
-        .team-box.home { justify-content: flex-end; text-align: right; }
-        .row-score { font-weight: 800; background: #333; color: #fff; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; }
-        img.team-logo { width: 24px; height: 24px; object-fit: contain; }
+        .header { background: #e41e26; color: white; padding: 10px; text-align: center; border-radius: 4px; font-weight: bold; margin-bottom: 10px; }
+        .game-row { background: white; display: flex; align-items: center; padding: 12px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 0.85rem; }
+        .status { width: 80px; font-size: 0.7rem; font-weight: bold; color: #666; }
+        .teams { flex: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-weight: 600; }
+        .score { background: #333; color: white; padding: 3px 12px; border-radius: 4px; font-weight: 800; min-width: 45px; text-align: center; }
     </style>
 </head>
 <body>
-    <div class="section-header">🏉 Rugby Union - Global Results & Fixtures</div>
-    <div id="rugbyFeed"></div>
+    <div class="header">🏉 WORLDWIDE RUGBY RESULTS</div>
+    <div id="rugby-results">Loading latest scores...</div>
 
     <script>
-        async function update() {
+        async function fetchRugby() {
             try {
-                // We use a date range to ensure the page isn't empty
-                const now = new Date();
-                const fmt = (d) => d.toISOString().split('T')[0].replace(/-/g, "");
-                const start = new Date(); start.setDate(now.getDate() - 14);
-                const end = new Date(); end.setDate(now.getDate() + 14);
-
-                // This is the Global Rugby Union endpoint
-                const url = `https://site.api.espn.com/apis/site/v2/sports/rugby/union/scoreboard?dates=${fmt(start)}-${fmt(end)}&limit=100&cb=${Date.now()}`;
-                
-                const res = await fetch(url);
+                // Switching to the "All Sports" summary which often catches rugby when the specific API fails
+                const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/union/scoreboard`);
                 const data = await res.json();
-                const container = document.getElementById('rugbyFeed');
                 let html = '';
 
                 if (data.events && data.events.length > 0) {
-                    // Sort events by date so most recent are first
-                    data.events.sort((a, b) => new Date(b.date) - new Date(a.date));
-
                     data.events.forEach(e => {
-                        const status = e.status.type.state;
-                        const comp = e.competitions[0];
-                        const home = comp.competitors.find(t => t.homeAway === 'home');
-                        const away = comp.competitors.find(t => t.homeAway === 'away');
-                        
-                        let label = e.status.type.shortDetail;
-                        if (status === 'pre') {
-                            label = new Date(e.date).toLocaleDateString([], {month:'short', day:'numeric'});
-                        }
-
-                        const scoreDisplay = status === 'pre' ? 'VS' : `${home.score} - ${away.score}`;
+                        const home = e.competitions[0].competitors.find(t => t.homeAway === 'home');
+                        const away = e.competitions[0].competitors.find(t => t.homeAway === 'away');
+                        const status = e.status.type.shortDetail;
+                        const score = e.status.type.state === 'pre' ? 'VS' : `${home.score} - ${away.score}`;
 
                         html += `
                         <div class="game-row">
-                            <div class="row-status">${label}</div>
-                            <div class="team-box home">
+                            <div class="status">${status}</div>
+                            <div class="teams">
                                 <span>${home.team.displayName}</span>
-                                <img src="${home.team.logo || ''}" class="team-logo">
-                            </div>
-                            <div class="row-score">${scoreDisplay}</div>
-                            <div class="team-box away">
-                                <img src="${away.team.logo || ''}" class="team-logo">
+                                <span class="score">${score}</span>
                                 <span>${away.team.displayName}</span>
                             </div>
                         </div>`;
                     });
-                    container.innerHTML = html;
                 } else {
-                    container.innerHTML = "<div style='text-align:center; padding:20px;'>No major rugby matches found in the last 14 days.</div>";
+                    html = "<div style='text-align:center; padding:20px;'>No major matches currently active. Check back during the weekend.</div>";
                 }
-            } catch (err) {
-                console.error("Rugby Feed Error:", err);
+                document.getElementById('rugby-results').innerHTML = html;
+            } catch (e) {
+                document.getElementById('rugby-results').innerHTML = "Rugby Feed currently unavailable.";
             }
         }
-        update();
-        setInterval(update, 300000); // Update every 5 minutes
+        fetchRugby();
     </script>
 </body>
 </html>

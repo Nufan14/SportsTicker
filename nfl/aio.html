@@ -15,10 +15,20 @@
         .team-box.away { justify-content: flex-start; text-align: left; }
         .row-score { font-weight: 800; background: #eee; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
         img.team-logo { width: 22px; height: 22px; object-fit: contain; }
+        .league-bug {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1000px; /* NHL logo is a bit rounder, so 1100px fills the space well */
+            opacity: 0.55; 
+            z-index: -1;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
-    <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/nfl.png" class="centered-logo">
+    <img src="https://a.espncdn.com/i/teamlogos/leagues/500/nfl.png" class="centered-logo">
     <div id="live-section"><div class="section-header">🏈 NFL Live Games</div><div id="liveGames"></div></div>
     <div class="columns-container">
         <div><div class="section-header">✅ Recent Results</div><div id="finishedGames"></div></div>

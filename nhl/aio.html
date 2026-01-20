@@ -5,103 +5,76 @@
     <style>
         body { background: #f4f4f4; font-family: 'Arial', sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
         .centered-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; opacity: 0.05; z-index: -1; pointer-events: none; }
-        
         #live-section { width: 100%; margin-bottom: 20px; display: none; }
         .section-header { background: #222; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* Two columns for Results and Fixtures */
         .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
-
         .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.9rem; }
         .row-status { width: 95px; font-size: 0.7rem; color: #cc0000; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
         .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
         .team-box.home { justify-content: flex-end; text-align: right; }
         .team-box.away { justify-content: flex-start; text-align: left; }
         .row-score { font-weight: 800; background: #eee; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
-        
         img.team-logo { width: 24px; height: 24px; object-fit: contain; }
     </style>
 </head>
 <body>
     <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/nhl.png" class="centered-logo">
-    
-    <div id="live-section">
-        <div class="section-header">🏒 NHL Live Games</div>
-        <div id="liveGames"></div>
-    </div>
-    
+    <div id="live-section"><div class="section-header">🏒 NHL Live Games</div><div id="liveGames"></div></div>
     <div class="columns-container">
-        <div>
-            <div class="section-header">✅ Recent Results</div>
-            <div id="finishedGames"></div>
-        </div>
-        <div>
-            <div class="section-header">📅 Upcoming Games</div>
-            <div id="scheduledGames"></div>
-        </div>
+        <div><div class="section-header">✅ Recent Results</div><div id="finishedGames"></div></div>
+        <div><div class="section-header">📅 Upcoming Games</div><div id="scheduledGames"></div></div>
     </div>
 
     <script>
         async function update() {
             try {
                 const ts = Date.now();
-                const now = new Date();
-                // Fetching a wide 20-day window to ensure we have enough games
-                const start = new Date(now.getTime() - (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
-                const end = new Date(now.getTime() + (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
-
-                const gRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard?dates=${start}-${end}&limit=100&cb=${ts}`);
-                const gData = await gRes.json();
+                // We use a shorter date range (6 days back/forward) to make the API response faster
+                const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard?limit=100&cb=${ts}`);
+                const data = await res.json();
                 
                 const live = document.getElementById('liveGames');
                 const sched = document.getElementById('scheduledGames');
                 const fin = document.getElementById('finishedGames');
                 
-                let liveItems = []; 
-                let finItems = []; 
-                let schedItems = [];
+                let liveHTML = ''; let finHTML = []; let schedHTML = [];
 
-                if (gData.events) {
-                    // Sort by date to keep them chronological
-                    gData.events.sort((a,b) => new Date(a.date) - new Date(b.date));
-
-                    gData.events.forEach(e => {
-                        const s = e.status.type.state;
-                        const home = e.competitions[0].competitors.find(c => c.homeAway === 'home');
-                        const away = e.competitions[0].competitors.find(c => c.homeAway === 'away');
+                if (data.events) {
+                    data.events.forEach(e => {
+                        const status = e.status.type.state;
+                        const teams = e.competitions[0].competitors;
+                        const home = teams.find(t => t.homeAway === 'home');
+                        const away = teams.find(t => t.homeAway === 'away');
                         
-                        let timeLbl = e.status.type.shortDetail;
-                        if (s === 'pre') {
+                        let label = e.status.type.shortDetail;
+                        if (status === 'pre') {
                             const d = new Date(e.date);
-                            timeLbl = d.toLocaleDateString([], {month:'short', day:'numeric'}) + "<br>" + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
+                            label = d.toLocaleDateString([], {month:'short', day:'numeric'}) + "<br>" + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
                         }
 
-                        const html = `
+                        const row = `
                         <div class="game-row">
-                            <div class="row-status">${timeLbl}</div>
-                            <div class="team-box home">
-                                <span>${home.team.shortDisplayName || home.team.name}</span>
-                                <img src="${home.team.logo}" class="team-logo">
-                            </div>
-                            <div class="row-score">${s === 'pre' ? 'VS' : away.score + ' - ' + home.score}</div>
-                            <div class="team-box away">
-                                <img src="${away.team.logo}" class="team-logo">
-                                <span>${away.team.shortDisplayName || away.team.name}</span>
-                            </div>
+                            <div class="row-status">${label}</div>
+                            <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" class="team-logo"></div>
+                            <div class="row-score">${status === 'pre' ? 'VS' : away.score + ' - ' + home.score}</div>
+                            <div class="team-box away"><img src="${away.team.logo}" class="team-logo"><span>${away.team.shortDisplayName || away.team.name}</span></div>
                         </div>`;
 
-                        if (s === 'in') liveItems.push(html);
-                        else if (s === 'post') finItems.push(html);
-                        else if (s === 'pre') schedItems.push(html);
+                        if (status === 'in') liveHTML += row;
+                        else if (status === 'post') finHTML.push(row);
+                        else if (status === 'pre') schedHTML.push(row);
                     });
                 }
 
-                // Update UI
-                live.innerHTML = liveItems.join('');
-                // Displaying 15 results (reversed so latest is at top)
-                fin.innerHTML = finItems.slice(-15).reverse().join('');
-                // Displaying next 15 scheduled games
-                sched.innerHTML = schedItems.slice(0, 15).join('');
+                live.innerHTML = liveHTML;
+                fin.innerHTML = finHTML.slice(-15).reverse().join('');
+                sched.innerHTML = schedHTML.slice(0, 15).join('');
+                document.getElementById('live-section').style.display = liveHTML ? 'block' : 'none';
 
-                // Show/Hide live section
-                document.getElementById('live-section').style.display = liveItems.length >
+            } catch (err) { console.error("NHL Fetch Error:", err); }
+        }
+        update();
+        setInterval(update, 60000);
+    </script>
+</body>
+</html>

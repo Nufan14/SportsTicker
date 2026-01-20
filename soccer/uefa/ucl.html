@@ -2,26 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
     <style>
-        /* 1. BASE BACKGROUND */
-        html { 
-            background-color: #f4f4f4; 
-        }
+        <body>
+    <img src="https://a.espncdn.com/i/teamlogos/leagues/500/ucl.png" class="centered-logo">
+    
+    <div id="live-section">
+        <div class="section-header">🏆 UEFA Champions League</div>
+        <div id="liveGames"></div>
+    </div>
 
-        /* 2. THE WATERMARK (THE MIDDLE LAYER) */
-        body::before {
-            content: "";
+    <div class="columns-container">
+        <div>
+            <div class="section-header">✅ Recent Results</div>
+            <div id="finishedGames"></div>
+        </div>
+        <div>
+            <div class="section-header">📅 Upcoming Games</div>
+            <div id="scheduledGames"></div>
+        </div>
+    </div>
+       .league-bug {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 500px;
-            height: 500px;
-            background-image: url('https://a.espncdn.com/i/teamlogos/leagues/lrg/uefa.champions.png');
-            background-repeat: no-repeat;
-            background-size: contain;
-            opacity: 0.10; /* Set to 10% visibility */
-            z-index: -1;    /* Sits behind text but above the HTML background */
+            width: 1100px; /* NHL logo is a bit rounder, so 1100px fills the space well */
+            opacity: 0.55; 
+            z-index: -1;
             pointer-events: none;
         }
 

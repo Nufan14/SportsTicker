@@ -58,7 +58,7 @@
             <div id="finishedGames"></div>
         </div>
         <div>
-            <div class="section-header">📅 Upcoming Fixtures</div>
+            <div class="section-header) ">📅 Upcoming Fixtures</div>
             <div id="scheduledGames"></div>
         </div>
     </div>
@@ -85,27 +85,19 @@
                     data.events.forEach(e => {
                         const status = e.status.type.state;
                         const teams = e.competitions[0].competitors;
-                        
-                        // We identify teams by role to ensure they match their container
                         const home = teams.find(t => t.homeAway === 'home');
                         const away = teams.find(t => t.homeAway === 'away');
-                        
                         let label = e.status.type.shortDetail;
                         if (status === 'pre') {
                             const d = new Date(e.date);
                             label = d.toLocaleDateString([], {month:'short', day:'numeric'}) + "<br>" + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
                         }
-
-                        // THE FIX: Changed 'away.score - home.score' to 'home.score - away.score'
-                        const scoreDisplay = status === 'pre' ? 'VS' : home.score + ' - ' + away.score;
-
                         const row = `<div class="game-row">
                             <div class="row-status">${label}</div>
                             <div class="team-box home"><span>${home.team.shortDisplayName || home.team.name}</span><img src="${home.team.logo}" class="team-logo"></div>
-                            <div class="row-score">${scoreDisplay}</div>
+                            <div class="row-score">${status === 'pre' ? 'VS' : away.score + ' - ' + home.score}</div>
                             <div class="team-box away"><img src="${away.team.logo}" class="team-logo"><span>${away.team.shortDisplayName || away.team.name}</span></div>
                         </div>`;
-
                         if (status === 'in') liveHTML += row;
                         else if (status === 'post') finHTML.push(row);
                         else if (status === 'pre') schedHTML.push(row);
@@ -118,4 +110,7 @@
             } catch (err) { console.error("UCL Error:", err); }
         }
         update(); 
-        setInterval(update, 600
+        setInterval(update, 60000);
+    </script>
+</body>
+</html>

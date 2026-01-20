@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body { background: #050505; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; color: #eee; overflow: hidden; }
+        .header { 
+            background: linear-gradient(135deg, #b71c1c, #4a148c); 
+            color: white; padding: 12px; text-align: center; border-radius: 6px; 
+            font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;
+            border: 1px solid #ff5252;
+        }
+        #content { display: flex; flex-direction: column; gap: 6px; }
+        .row { 
+            background: rgba(25, 25, 25, 0.95); display: flex; align-items: center; padding: 8px 15px; 
+            border-radius: 6px; border-left: 4px solid #ff5252; height: 42px;
+        }
+        .label { width: 95px; font-size: 0.6rem; color: #aaa; font-weight: bold; text-transform: uppercase; line-height: 1.1; }
+        .status { width: 100px; font-size: 0.7rem; color: #ff5252; font-weight: bold; }
+        .match { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .tm { display: flex; align-items: center; gap: 8px; flex: 1; font-size: 0.9rem; font-weight: 600; }
+        .tm.h { justify-content: flex-end; text-align: right; }
+        .tm.a { justify-content: flex-start; text-align: left; }
+        .score { 
+            background: #111; padding: 3px 12px; border-radius: 15px; min-width: 60px; 
+            text-align: center; font-weight: 800; color: #ffeb3b; border: 1px solid #444;
+        }
+        img.logo { width: 22px; height: 22px; object-fit: contain; }
+    </style>
+</head>
+<body>
+    <div class="header">🔥 ABSOLUTELY LIVE: GLOBAL SPORTS</div>
+    <div id="content"></div>
+
+    <script>
+        async function getAllLive() {
+            const list = document.getElementById('content');
+            // This is the "God view" endpoint that ESPN uses for their top navigation
+            const globalUrl = 'https://site.web.api.espn.com/apis/v2/scoreboard/header';
+
+            try {
+                const res = await fetch(`${globalUrl}?cb=${Date.now()}`);
+                const data = await res.json();
+                
+                let liveEvents = [];
+                if (data.sports) {
+                    data.sports.forEach(sport => {
+                        sport.leagues.forEach(league => {
+                            if (league.events) {
+                                league.events.forEach(e => {
+                                    // FILTER: Only games that are "in" (In-progress)
+                                    if (e.fullStatus.type.state === 'in') {
+                                        const h = e.competitors.find(c => c.homeAway === 'home') || e.competitors[0];
+                                        const a = e.competitors.find(c => c.homeAway === 'away') || e.competitors[1];
+                                        liveEvents.push({
+                                            league: league.shortName || sport.name,
+                                            status: e.fullStatus.type.shortDetail,
+                                            hName: h.shortDisplayName || h.displayName,
+                                            aName: a.shortDisplayName || a.displayName,
+                                            hLogo: h.logo,
+                                            aLogo: a.logo,
+                                            hScore: h.score,
+                                            aScore: a.score
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    });
+                }
+
+                if (liveEvents.length === 0) {
+                    list.innerHTML = "<div style='text-align:center; margin-top:30px; color:#666;'>No events are currently live. Checking again in 30s...</div>";
+                    return;
+                }
+
+                list.innerHTML = liveEvents.slice(0, 10).map(item => `
+                    <div class="row">
+                        <div class="label">${item.league}</div>
+                        <div class="status">${item.status}</div>
+                        <div class="match">
+                            <div class="tm h"><span>${item.hName}</span><img src="${item.hLogo || ''}" class="logo"></div>
+                            <div class="score">${item.hScore} - ${item.aScore}</div>
+                            <div class="tm a"><img src="${item.aLogo || ''}" class="logo"><span>${item.aName}</span></div>
+                        </div>
+                    </div>`).join('');
+
+            } catch (err) { console.error(err); }
+        }
+
+        getAllLive();
+        setInterval(getAllLive, 30000);
+    </script>
+</body>
+</html>

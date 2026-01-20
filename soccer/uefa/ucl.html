@@ -7,49 +7,42 @@
 <head>
     <meta charset="UTF-8" />
     <style>
-        <body>
-    <img src="https://a.espncdn.com/i/teamlogos/leagues/500/ucl.png" class="centered-logo">
-    
-    <div id="live-section">
-        <div class="section-header">🏆 UEFA Champions League</div>
-        <div id="liveGames"></div>
-    </div>
-
-    <div class="columns-container">
-        <div>
-            <div class="section-header">✅ Recent Results</div>
-            <div id="finishedGames"></div>
-        </div>
-        <div>
-            <div class="section-header">📅 Upcoming Games</div>
-            <div id="scheduledGames"></div>
-        </div>
-    </div>
-       .league-bug {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 1100px; /* NHL logo is a bit rounder, so 1100px fills the space well */
-            opacity: 0.55; 
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* 3. THE CONTENT LAYER (THE TOP LAYER) */
-        body { 
+       body { 
+            background: #f4f4f4; 
             font-family: 'Arial', sans-serif; 
             margin: 0; 
             padding: 10px; 
             overflow-x: hidden; 
-            background: transparent !important; 
+        }
+
+        .centered-logo { 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 1000px; 
+            opacity: 0.60; 
+            z-index: -1; 
+            pointer-events: none; 
+        }
+
+        .section-header { 
+            background: #001c58; /* UCL Deep Blue */
+            color: #fff; 
+            padding: 10px 0; 
+            text-align: center; 
+            margin-bottom: 12px; 
+            border-radius: 4px; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
         }
 
         #live-section { width: 100%; margin-bottom: 20px; display: none; }
-        .section-header { background: #003399; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
         .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
-        .game-row { background: rgba(255, 255, 255, 0.9); display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.85rem; }
-        .row-status { width: 95px; font-size: 0.65rem; color: #003399; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
+        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.85rem; }
+        .row-status { width: 95px; font-size: 0.65rem; color: #cc0000; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
         .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
         .team-box.home { justify-content: flex-end; text-align: right; }
         .team-box.away { justify-content: flex-start; text-align: left; }

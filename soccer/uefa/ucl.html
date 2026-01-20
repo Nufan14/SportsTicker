@@ -3,46 +3,34 @@
 <head>
     <meta charset="UTF-8" />
     <style>
-        /* 1. LAYER SYSTEM */
-        html, body { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Arial', sans-serif; }
-        
-        /* The "Floor" (Grey Background) */
-        .bg-layer {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+        /* THE ABSOLUTE FOUNDATION */
+        html { 
+            /* We put the logo here. It is the very bottom layer of the browser. */
             background-color: #f4f4f4;
-            z-index: -2;
+            background-image: url('https://a.espncdn.com/i/teamlogos/leagues/lrg/uefa.champions.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: 450px;
         }
 
-        /* The Logo (Middle Layer) */
-        #watermark {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 450px;
-            opacity: 0.12;
-            z-index: -1;
-            pointer-events: none;
+        body { 
+            font-family: 'Arial', sans-serif; 
+            margin: 0; 
+            padding: 10px; 
+            /* We make the body 90% transparent so the HTML logo shows through */
+            background: rgba(244, 244, 244, 0.9) !important; 
+            min-height: 100vh;
         }
 
-        /* The Content (Top Layer) */
-        .content-wrapper {
-            position: relative;
-            z-index: 1;
-            padding: 10px;
-            background: transparent !important;
-        }
-
-        /* 2. UI STYLES */
         #live-section { width: 100%; margin-bottom: 20px; display: none; }
-        .section-header { background: #003399; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .section-header { background: #003399; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; }
         .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
         
-        /* Set background to 0.8 to let the logo show through slightly */
-        .game-row { background: rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.85rem; }
+        /* Game rows are slightly transparent white */
+        .game-row { background: rgba(255, 255, 255, 0.95); display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.85rem; }
         
-        .row-status { width: 95px; font-size: 0.65rem; color: #003399; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
+        .row-status { width: 95px; font-size: 0.65rem; color: #003399; font-weight: bold; text-transform: uppercase; text-align: left; }
         .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
         .team-box.home { justify-content: flex-end; text-align: right; }
         .team-box.away { justify-content: flex-start; text-align: left; }
@@ -51,24 +39,19 @@
     </style>
 </head>
 <body>
-    <div class="bg-layer"></div>
-    <img id="watermark" src="https://a.espncdn.com/i/teamlogos/leagues/lrg/uefa.champions.png">
-
-    <div class="content-wrapper">
-        <div id="live-section">
-            <div class="section-header">🇪🇺 Champions League LIVE</div>
-            <div id="liveGames"></div>
+    <div id="live-section">
+        <div class="section-header">🇪🇺 Champions League LIVE</div>
+        <div id="liveGames"></div>
+    </div>
+    
+    <div class="columns-container">
+        <div>
+            <div class="section-header">✅ Recent Results</div>
+            <div id="finishedGames"></div>
         </div>
-        
-        <div class="columns-container">
-            <div>
-                <div class="section-header">✅ Recent Results</div>
-                <div id="finishedGames"></div>
-            </div>
-            <div>
-                <div class="section-header">📅 Upcoming Fixtures</div>
-                <div id="scheduledGames"></div>
-            </div>
+        <div>
+            <div class="section-header">📅 Upcoming Fixtures</div>
+            <div id="scheduledGames"></div>
         </div>
     </div>
 
@@ -76,12 +59,7 @@
         async function update() {
             try {
                 const ts = Date.now();
-                const now = new Date();
-                const fmt = (d) => d.toISOString().split('T')[0].replace(/-/g, "");
-                const start = new Date(); start.setDate(now.getDate() - 10);
-                const end = new Date(); end.setDate(now.getDate() + 10);
-                
-                const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${fmt(start)}-${fmt(end)}&limit=100&cb=${ts}`;
+                const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?limit=100&cb=${ts}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 
@@ -90,19 +68,23 @@
                 const fin = document.getElementById('finishedGames');
                 
                 let liveHTML = ''; let finHTML = []; let schedHTML = [];
+
                 if (data.events) {
                     data.events.forEach(e => {
                         const status = e.status.type.state;
-                        const teams = e.competitions[0].competitors;
-                        const home = teams.find(t => t.homeAway === 'home');
-                        const away = teams.find(t => t.homeAway === 'away');
+                        const competitors = e.competitions[0].competitors;
+                        
+                        // FIX: Explicitly find teams by role, not by list index [0] or [1]
+                        const home = competitors.find(team => team.homeAway === 'home');
+                        const away = competitors.find(team => team.homeAway === 'away');
+                        
                         let label = e.status.type.shortDetail;
                         if (status === 'pre') {
                             const d = new Date(e.date);
                             label = d.toLocaleDateString([], {month:'short', day:'numeric'}) + "<br>" + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
                         }
-                        
-                        // Score Fix: Display Home Score - Away Score to match your Left-Right layout
+
+                        // Use the explicit score for the specific team found above
                         const scoreDisplay = status === 'pre' ? 'VS' : `${home.score} - ${away.score}`;
 
                         const row = `<div class="game-row">

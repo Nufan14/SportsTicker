@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body { background: #050505; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 10px; color: #eee; }
+        .featured-header { 
+            background: linear-gradient(135deg, #d32f2f, #b71c1c); 
+            color: white; padding: 12px; text-align: center; border-radius: 6px; 
+            font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .event-row { 
+            background: #121212; display: flex; align-items: center; padding: 12px; 
+            margin-bottom: 8px; border-radius: 8px; border-left: 5px solid #d32f2f;
+            transition: transform 0.2s;
+        }
+        .sport-label { width: 75px; font-size: 0.6rem; color: #888; font-weight: bold; text-transform: uppercase; }
+        .event-status { width: 90px; font-size: 0.7rem; color: #00e676; font-weight: bold; }
+        .matchup { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 600; }
+        .team { display: flex; align-items: center; gap: 10px; flex: 1; }
+        .team.home { justify-content: flex-end; text-align: right; }
+        .team.away { justify-content: flex-start; text-align: left; }
+        .score-pill { background: #222; padding: 4px 12px; border-radius: 20px; min-width: 55px; text-align: center; font-weight: 800; color: #ffeb3b; border: 1px solid #444; }
+        img.logo { width: 24px; height: 24px; object-fit: contain; }
+    </style>
+</head>
+<body>
+    <div class="featured-header">⭐ TOP EVENTS TODAY</div>
+    <div id="main-content"></div>
+
+    <script>
+        async function fetchEvents() {
+            const list = document.getElementById('main-content');
+            // These endpoints cover the "Main Events" for multiple sports
+            const sources = [
+                { name: 'UCL', url: 'https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard' },
+                { name: 'NBA', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard' },
+                { name: 'NHL', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard' },
+                { name: 'MLB', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard' },
+                { name: 'Tennis', url: 'https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard' }
+            ];
+
+            let html = '';
+            for (let s of sources) {
+                try {
+                    const res = await fetch(`${s.url}?cb=${Date.now()}`);
+                    const data = await res.json();
+                    if (data.events && data.events.length > 0) {
+                        // Take the top 2 "High Interest" games from each source
+                        data.events.slice(0, 2).forEach(e => {
+                            const t = e.competitions[0].competitors;
+                            const h = t.find(i => i.homeAway === 'home') || t[0];
+                            const a = t.find(i => i.homeAway === 'away') || t[1];
+                            const status = e.status.type.shortDetail;
+                            const isLive = e.status.type.state === 'in';
+
+                            html += `
+                                <div class="event-row">
+                                    <div class="sport-label">${s.name}</div>
+                                    <div class="event-status" style="color: ${isLive ? '#ff5252' : '#00e676'}">${status}</div>
+                                    <div class="matchup">
+                                        <div class="team home"><span>${h.team.shortDisplayName || h.team.name}</span><img src="${h.team.logo || ''}" class="logo" onerror="this.style.display='none'"></div>
+                                        <div class="score-pill">${e.status.type.state === 'pre' ? 'VS' : (h.score + ' - ' + a.score)}</div>
+                                        <div class="team away"><img src="${a.team.logo || ''}" class="logo" onerror="this.style.display='none'"><span>${a.team.shortDisplayName || a.team.name}</span></div>
+                                    </div>
+                                </div>`;
+                        });
+                    }
+                } catch (err) { console.error("Source error: " + s.name); }
+            }
+            list.innerHTML = html || '<div style="text-align:center; padding:20px; color:#666;">No featured events live.</div>';
+        }
+
+        fetchEvents();
+        setInterval(fetchEvents, 60000);
+    </script>
+</body>
+</html>

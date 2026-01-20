@@ -8,13 +8,13 @@
         #live-section { width: 100%; margin-bottom: 20px; display: none; }
         .section-header { background: #222; color: #fff; padding: 10px 0; text-align: center; margin-bottom: 12px; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
         .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
-        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.9rem; }
-        .row-status { width: 95px; font-size: 0.7rem; color: #cc0000; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
+        .game-row { background: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 0.85rem; }
+        .row-status { width: 95px; font-size: 0.65rem; color: #cc0000; font-weight: bold; text-transform: uppercase; text-align: left; line-height: 1.2; }
         .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 600; }
         .team-box.home { justify-content: flex-end; text-align: right; }
         .team-box.away { justify-content: flex-start; text-align: left; }
         .row-score { font-weight: 800; background: #eee; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
-        img.team-logo { width: 24px; height: 24px; object-fit: contain; }
+        img.team-logo { width: 22px; height: 22px; object-fit: contain; }
     </style>
 </head>
 <body>
@@ -29,8 +29,13 @@
         async function update() {
             try {
                 const ts = Date.now();
-                // We use a shorter date range (6 days back/forward) to make the API response faster
-                const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard?limit=100&cb=${ts}`);
+                const now = new Date();
+                
+                // FIXED: Explicitly set a window from 7 days ago to 7 days ahead
+                const start = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
+                const end = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, "");
+
+                const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard?dates=${start}-${end}&limit=100&cb=${ts}`);
                 const data = await res.json();
                 
                 const live = document.getElementById('liveGames');
@@ -67,11 +72,14 @@
                 }
 
                 live.innerHTML = liveHTML;
+                // Show last 15 results
                 fin.innerHTML = finHTML.slice(-15).reverse().join('');
+                // Show next 15 scheduled fixtures
                 sched.innerHTML = schedHTML.slice(0, 15).join('');
+                
                 document.getElementById('live-section').style.display = liveHTML ? 'block' : 'none';
 
-            } catch (err) { console.error("NHL Fetch Error:", err); }
+            } catch (err) { console.error("NHL Update Error:", err); }
         }
         update();
         setInterval(update, 60000);

@@ -34,7 +34,7 @@
                 const end = new Date(); end.setDate(now.getDate() + 14);
                 
                 // Fetching with a wide date range to ensure we see data
-                const url = `https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?league=18065&dates=${fmt(start)}-${fmt(end)}&cb=${Date.now()}`;
+                const url = `https://site.api.espn.com/apis/site/v2/sports/rugby/union/scoreboard?cb=${Date.now()}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 

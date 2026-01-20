@@ -18,11 +18,12 @@
         /* THE TV BUG: Stays in the corner regardless of game data */
         .league-bug {
             position: fixed;
-            top: 10px;
-            right: 20px;
-            width: 80px; /* Adjust size as needed */
-            opacity: 0.15; /* Subtle enough for a basement TV */
-            z-index: 9999; /* Higher than everything else */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* This perfectly centers it */
+            width: 500px; /* Make it large */
+            opacity: 0.05; /* Keep it very faint so you can read the text over it */
+            z-index: -1; /* This is the secret: it puts it BEHIND the games */
             pointer-events: none;
         }
     </style>

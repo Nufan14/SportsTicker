@@ -22,20 +22,20 @@
     </div>
 
     <script>
-        // LEAGUE LIST: Soccer moved to the top
-        const leagues = [
-            { name: "Premier League", url: "soccer/aio.html?league=eng.1" },
-            { name: "Ligue 1", url: "soccer/aio.html?league=fra.1" },
-            { name: "La Liga", url: "soccer/aio.html?league=esp.1" },
-            { name: "Bundesliga", url: "soccer/aio.html?league=ger.1" },
-            { name: "Serie A", url: "soccer/aio.html?league=ita.1" },
-            { name: "Champions League", url: "uefa/ucl.html" }, // Added UCL
-    { name: "Europa League", url: "uefa/uel.html" }    // Added UEL
-            { name: "NFL Football", url: "nfl/aio.html" },
-            { name: "NHL Hockey", url: "nhl/aio.html" },
-            { name: "NBA Basketball", url: "nba/aio.html" },
-            { name: "Rugby Top 14", url: "rugby/aio.html" }
-        ];
+        // LEAGUE LIST: Corrected syntax
+const leagues = [
+    { name: "Premier League", url: "soccer/aio.html?league=eng.1" },
+    { name: "Ligue 1", url: "soccer/aio.html?league=fra.1" },
+    { name: "La Liga", url: "soccer/aio.html?league=esp.1" },
+    { name: "Bundesliga", url: "soccer/aio.html?league=ger.1" },
+    { name: "Serie A", url: "soccer/aio.html?league=ita.1" },
+    { name: "Champions League", url: "uefa/ucl.html" }, 
+    { name: "Europa League", url: "uefa/uel.html" },
+    { name: "NFL Football", url: "nfl/aio.html" },
+    { name: "NHL Hockey", url: "nhl/aio.html" },
+    { name: "NBA Basketball", url: "nba/aio.html" },
+    { name: "Rugby Top 14", url: "rugby/aio.html" }
+];
         
         let currentIndex = 0;
         const frame = document.getElementById('ticker-frame');

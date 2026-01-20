@@ -3,57 +3,52 @@
 <head>
     <meta charset="UTF-8" />
 <style>
-        /* 1. THE BACKGROUND & LOGO (COMBINED) */
+        /* 1. This layer is permanent - JavaScript can't delete it */
+        html {
+            background-color: #050505;
+            background-image: url('https://a.espncdn.com/i/teamlogos/leagues/500/nba.png');
+            background-repeat: no-repeat;
+            background-position: center 60%;
+            background-size: 50%;
+            height: 100%;
+        }
+
+        /* 2. This is the dark "tint" that makes the logo a watermark */
+        html::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); /* Adjust 0.9 to 0.8 for a brighter logo */
+            z-index: 0;
+        }
+
+        /* 3. Your content container */
         body {
             margin: 0;
             padding: 10px;
             font-family: 'Segoe UI', Arial, sans-serif;
             color: #ffffff;
-            /* Base dark background */
-            background-color: #050505;
-            /* The Watermark - change URL for other leagues */
-            background-image: linear-gradient(rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.9)), 
-                              url('https://a.espncdn.com/i/teamlogos/leagues/500/nba.png');
-            background-repeat: no-repeat;
-            background-position: center 60%;
-            background-size: cover, 60%; /* 'cover' for the tint, '60%' for the logo */
-            background-attachment: fixed;
-            overflow-x: hidden;
+            position: relative;
+            z-index: 1; /* Puts text ABOVE the tint */
+            background: transparent !important;
         }
 
-        /* 2. THE SECTION HEADERS (NBA, NHL, etc.) */
-        .section-header {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            padding: 12px;
-            text-align: center;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* 3. THE GAME ROWS (FROSTED GLASS) */
+        /* 4. The Game Rows */
         .game-row {
-            background: rgba(35, 35, 35, 0.8) !important;
-            backdrop-filter: blur(10px);
+            background: rgba(40, 40, 40, 0.8) !important;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 12px 18px;
             margin-bottom: 8px;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* 4. TEXT & LOGO TWEAKS */
-        .row-status { width: 90px; font-size: 0.75rem; color: #ff4d4d; font-weight: bold; text-transform: uppercase; }
+        .row-status { width: 95px; font-size: 0.75rem; color: #ff5555; font-weight: bold; text-transform: uppercase; }
         .team-box { display: flex; align-items: center; gap: 12px; flex: 1; font-weight: 600; font-size: 1.1rem; }
         .row-score { font-weight: 800; font-size: 1.3rem; background: rgba(255, 255, 255, 0.15); padding: 5px 15px; border-radius: 4px; margin: 0 15px; min-width: 60px; text-align: center; color: #fff; }
-        img.team-logo { width: 30px; height: 30px; object-fit: contain; }
+        img.team-logo { width: 28px; height: 28px; object-fit: contain; }
     </style>
 </head>
 <body id="live-section">

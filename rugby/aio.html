@@ -3,22 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { background: #f0f0f0; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 10px; }
+        /* SAFE WATERMARK SYSTEM */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            height: 450px;
+            background-image: url('https://a.espncdn.com/i/teamlogos/leagues/lrg/fra.1.png');
+            background-repeat: no-repeat;
+            background-size: contain;
+            opacity: 0.04;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        body { background: #f4f4f4; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 10px; }
         .header { background: #1a1a1a; color: #fff; padding: 12px; text-align: center; border-radius: 8px; margin-bottom: 15px; font-weight: bold; text-transform: uppercase; border-bottom: 4px solid #d41111; }
         .main-container { display: grid; grid-template-columns: 1.4fr 1fr; gap: 15px; }
-        .section { background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .section-title { font-size: 0.9rem; font-weight: 800; color: #d41111; margin-bottom: 10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .section { background: rgba(255, 255, 255, 0.9); border-radius: 8px; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .section-title { font-size: 0.9rem; font-weight: 800; color: #d41111; margin-bottom: 10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; }
         
         .game-row { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; font-size: 0.8rem; }
         .team-info { display: flex; align-items: center; gap: 8px; flex: 1; font-weight: 600; }
-        .team-logo { width: 22px; height: 22px; object-fit: contain; }
+        .team-logo { width: 22px; height: 22px; object-fit: contain; background: #fff; border-radius: 50%; }
         .score { font-weight: 900; background: #333; color: white; padding: 3px 10px; border-radius: 4px; min-width: 35px; text-align: center; margin: 0 10px; }
-        .status { font-size: 0.7rem; color: #d41111; width: 70px; text-align: right; font-weight: bold; }
+        .status { font-size: 0.7rem; color: #d41111; width: 75px; text-align: right; font-weight: bold; }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
         th { text-align: left; color: #888; padding: 5px; border-bottom: 1px solid #eee; }
         td { padding: 8px 5px; border-bottom: 1px solid #f9f9f9; }
-        .pts { font-weight: bold; color: #d41111; text-align: center; }
+        .pts { font-weight: bold; color: #d41111; text-align: center; background: #fff5f5; }
         
         #live-section { display: none; margin-bottom: 15px; border: 2px solid #d41111; }
     </style>
@@ -35,7 +52,7 @@
 <div class="main-container">
     <div class="section">
         <div class="section-title">📅 SCHEDULE & RESULTS</div>
-        <div id="scores-body"></div>
+        <div id="scores-body">Loading fixtures...</div>
     </div>
 
     <div class="section">
@@ -48,64 +65,62 @@
 </div>
 
 <script>
-    const LEAGUE_ID = "fra.1";
+    const LEAGUE = "fra.1";
 
-    async function updateData() {
+    async function update() {
         const ts = Date.now();
         try {
-            // Fetch Scores
-            const sRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?league=${LEAGUE_ID}&cb=${ts}`);
+            // 1. Fetch Scores - Try direct sports/rugby endpoint
+            const sRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?league=${LEAGUE}&cb=${ts}`);
             const sData = await sRes.json();
             
-            let liveHTML = "";
-            let gamesHTML = "";
-            let liveActive = false;
+            let liveH = ""; let gamesH = ""; let liveOn = false;
 
-            if (sData.events) {
+            if (sData.events && sData.events.length > 0) {
                 sData.events.forEach(e => {
                     const status = e.status.type.state;
-                    const comp = e.competitions[0];
-                    const home = comp.competitors.find(t => t.homeAway === 'home');
-                    const away = comp.competitors.find(t => t.homeAway === 'away');
+                    const home = e.competitions[0].competitors.find(t => t.homeAway === 'home');
+                    const away = e.competitions[0].competitors.find(t => t.homeAway === 'away');
                     const label = e.status.type.shortDetail;
 
                     const row = `
                         <div class="game-row">
                             <div class="team-info">
-                                <img class="team-logo" src="${away.team.logo || ''}">
+                                <img class="team-logo" src="${away.team.logo || 'https://a.espncdn.com/i/teamlogos/default-team-logo-500.png'}">
                                 <span>${away.team.shortDisplayName || away.team.name}</span>
                             </div>
                             <div class="score">${status === 'pre' ? 'VS' : away.score + ' - ' + home.score}</div>
                             <div class="team-info" style="justify-content: flex-end;">
                                 <span>${home.team.shortDisplayName || home.team.name}</span>
-                                <img class="team-logo" src="${home.team.logo || ''}">
+                                <img class="team-logo" src="${home.team.logo || 'https://a.espncdn.com/i/teamlogos/default-team-logo-500.png'}">
                             </div>
                             <div class="status">${label}</div>
                         </div>`;
 
-                    if (status === 'in') { liveHTML += row; liveActive = true; }
-                    else { gamesHTML += row; }
+                    if (status === 'in') { liveH += row; liveOn = true; }
+                    else { gamesH += row; }
                 });
             }
-            document.getElementById('live-games').innerHTML = liveHTML;
-            document.getElementById('scores-body').innerHTML = gamesHTML || "No matches scheduled.";
-            document.getElementById('live-section').style.display = liveActive ? 'block' : 'none';
+            document.getElementById('live-games').innerHTML = liveH;
+            document.getElementById('scores-body').innerHTML = gamesH || "No recent fixtures found.";
+            document.getElementById('live-section').style.display = liveOn ? 'block' : 'none';
 
-            // Fetch Standings
-            const stRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/standings?league=${LEAGUE_ID}&cb=${ts}`);
+            // 2. Fetch Standings
+            const stRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/standings?league=${LEAGUE}&cb=${ts}`);
             const stData = await stRes.json();
-            let stHTML = "";
+            let stH = "";
             
-            // Rugby API specific standings path
-            const entries = stData.children[0].standings.entries;
+            // Navigate the "Children" structure common in Rugby API
+            const entries = stData.children && stData.children[0] ? stData.children[0].standings.entries : [];
+            
             entries.forEach((entry, i) => {
                 const t = entry.team;
-                const s = entry.stats;
-                const gp = s.find(x => x.name === 'gamesPlayed')?.displayValue || '0';
-                const pts = s.find(x => x.name === 'points')?.displayValue || '0';
-                const logo = t.logos ? t.logos[0].href : '';
+                const stats = entry.stats;
+                const gp = stats.find(x => x.name === 'gamesPlayed')?.displayValue || '0';
+                const pts = stats.find(x => x.name === 'points')?.displayValue || '0';
+                const logo = (t.logos && t.logos[0]) ? t.logos[0].href : 'https://a.espncdn.com/i/teamlogos/default-team-logo-500.png';
 
-                stHTML += `<tr>
+                stH += `<tr>
                     <td>${i+1}</td>
                     <td style="display:flex; align-items:center; gap:8px;">
                         <img src="${logo}" style="width:18px;height:18px;">
@@ -115,13 +130,13 @@
                     <td class="pts">${pts}</td>
                 </tr>`;
             });
-            document.getElementById('standings-body').innerHTML = stHTML;
+            document.getElementById('standings-body').innerHTML = stH || "<tr><td colspan='4' style='text-align:center'>Updating table...</td></tr>";
 
-        } catch (err) { console.log("Rugby Error:", err); }
+        } catch (err) { console.error("Rugby Load Error:", err); }
     }
 
-    updateData();
-    setInterval(updateData, 60000);
+    update();
+    setInterval(update, 60000);
 </script>
 </body>
 </html>

@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8" />
     <style>
-        /* 1. BASE BACKGROUND */
+        /* 1. THE FOUNDATION */
         html { 
-            background-color: #f4f4f4; 
+            background-color: #f4f4f4 !important; 
+            height: 100%;
+            margin: 0;
         }
 
-        /* 2. THE WATERMARK (THE MIDDLE LAYER) */
-        body::before {
+        /* 2. THE WATERMARK */
+        /* We use html::before to ensure it is at the absolute bottom layer */
+        html::before {
             content: "";
             position: fixed;
             top: 50%;
@@ -20,18 +23,19 @@
             background-image: url('https://a.espncdn.com/i/teamlogos/leagues/lrg/uefa.champions.png');
             background-repeat: no-repeat;
             background-size: contain;
-            opacity: 0.10; /* Set to 10% visibility */
-            z-index: -1;    /* Sits behind text but above the HTML background */
+            opacity: 0.20; /* Temporarily high to confirm it works */
+            z-index: 0; 
             pointer-events: none;
         }
 
-        /* 3. THE CONTENT LAYER (THE TOP LAYER) */
+        /* 3. THE CONTENT */
         body { 
             font-family: 'Arial', sans-serif; 
             margin: 0; 
             padding: 10px; 
-            overflow-x: hidden; 
             background: transparent !important; 
+            position: relative;
+            z-index: 1; /* Pushes text above the html::before logo */
         }
 
         #live-section { width: 100%; margin-bottom: 20px; display: none; }
@@ -58,7 +62,7 @@
             <div id="finishedGames"></div>
         </div>
         <div>
-            <div class="section-header) ">📅 Upcoming Fixtures</div>
+            <div class="section-header">📅 Upcoming Fixtures</div>
             <div id="scheduledGames"></div>
         </div>
     </div>

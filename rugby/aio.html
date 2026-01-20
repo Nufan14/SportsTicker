@@ -70,8 +70,8 @@
     async function updateData() {
         const ts = Date.now();
         try {
-            // Using the 'library' endpoint which is more stable for Rugby Union
-            const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?cb=${ts}`);
+            // This uses the numeric ID 18065 which is more reliable for Top 14
+const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/rugby/score/scoreboard?league=18065&cb=${Date.now()}`);
             const data = await res.json();
             
             let gamesHTML = "";

@@ -15,7 +15,7 @@
             background: rgba(25, 25, 25, 0.9); display: flex; align-items: center; padding: 8px 15px; 
             border-radius: 6px; border-left: 4px solid #3949ab; height: 42px;
         }
-        .label { width: 85px; font-size: 0.65rem; color: #aaa; font-weight: bold; text-transform: uppercase; }
+        .label { width: 85px; font-size: 0.65rem; color: #aaa; font-weight: bold; text-transform: uppercase; overflow: hidden; white-space: nowrap; }
         .status { width: 100px; font-size: 0.7rem; color: #00e676; font-weight: bold; }
         .match { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         .tm { display: flex; align-items: center; gap: 8px; flex: 1; font-size: 0.9rem; font-weight: 600; }
@@ -29,76 +29,72 @@
     </style>
 </head>
 <body>
-    <div class="header">⭐ MAIN EVENTS: TODAY & UPCOMING</div>
+    <div class="header">⭐ FEATURED MAIN EVENTS</div>
     <div id="content"></div>
 
     <script>
         async function getStats() {
             const list = document.getElementById('content');
-            // Using limit=50 to ensure we get a full list of events for the day
-            const sources = [
-                { n: 'NCAA BK', u: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=80&limit=50' },
-                { n: 'Tennis', u: 'https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?limit=50' },
-                { n: 'Tennis', u: 'https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?limit=50' },
-                { n: 'MLB', u: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?limit=50' },
-                { n: 'Golf', u: 'https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard' },
-                { n: 'UFC', u: 'https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard' }
-            ];
+            // This is ESPN's "Featured" headline scoreboard endpoint
+            const url = 'https://site.web.api.espn.com/apis/v2/scoreboard/header';
 
-            let results = [];
-
-            for (let s of sources) {
-                try {
-                    const res = await fetch(`${s.u}&cb=${Date.now()}`);
-                    const data = await res.json();
-                    if (data.events) {
-                        data.events.slice(0, 5).forEach(e => {
-                            results.push({ s: s.n, e: e, date: new Date(e.date) });
-                        });
-                    }
-                } catch (err) { console.log("Missing: " + s.n); }
-            }
-
-            // SORT: Live games first, then by date
-            results.sort((a, b) => {
-                const aLive = a.e.status.type.state === 'in';
-                const bLive = b.e.status.type.state === 'in';
-                if (aLive && !bLive) return -1;
-                if (!aLive && bLive) return 1;
-                return a.date - b.date;
-            });
-
-            list.innerHTML = results.slice(0, 10).map(item => {
-                const e = item.e;
-                const stat = e.status.type;
-                const comp = e.competitions[0];
-                const tms = comp.competitors;
+            try {
+                const res = await fetch(`${url}?cb=${Date.now()}`);
+                const data = await res.json();
                 
-                // UNIVERSAL LOGIC: Find names for both Teams and Athletes
-                const home = tms.find(t => t.homeAway === 'home') || tms[0];
-                const away = tms.find(t => t.homeAway === 'away') || tms[1];
+                if (!data.sports) return;
 
-                const hName = home.team ? home.team.shortDisplayName || home.team.name : home.athlete.displayName;
-                const aName = away.team ? away.team.shortDisplayName || away.team.name : away.athlete.displayName;
-                const hLogo = home.team ? home.team.logo : (home.athlete ? home.athlete.flag : '');
-                const aLogo = away.team ? away.team.logo : (away.athlete ? away.athlete.flag : '');
+                let events = [];
+                data.sports.forEach(sport => {
+                    sport.leagues.forEach(league => {
+                        if (league.events) {
+                            league.events.forEach(e => {
+                                events.push({
+                                    leagueName: league.shortName || sport.name,
+                                    event: e,
+                                    date: new Date(e.date)
+                                });
+                            });
+                        }
+                    });
+                });
 
-                const scoreStr = stat.state === 'pre' ? 'VS' : `${home.score} - ${away.score}`;
+                // Priority Sort: Live events first, then by start time
+                events.sort((a, b) => {
+                    const aLive = a.event.fullStatus.type.state === 'in';
+                    const bLive = b.event.fullStatus.type.state === 'in';
+                    if (aLive && !bLive) return -1;
+                    if (!aLive && bLive) return 1;
+                    return a.date - b.date;
+                });
 
-                return `
-                    <div class="row">
-                        <div class="label">${item.s}</div>
-                        <div class="status" style="color: ${stat.state === 'in' ? '#ff5252' : '#00e676'}">
-                            ${stat.shortDetail}
-                        </div>
-                        <div class="match">
-                            <div class="tm h"><span>${hName}</span><img src="${hLogo || ''}" class="logo" onerror="this.style.display='none'"></div>
-                            <div class="score">${scoreStr}</div>
-                            <div class="tm a"><img src="${aLogo || ''}" class="logo" onerror="this.style.display='none'"><span>${aName}</span></div>
-                        </div>
-                    </div>`;
-            }).join('');
+                list.innerHTML = events.slice(0, 10).map(item => {
+                    const e = item.event;
+                    const stat = e.fullStatus.type;
+                    const home = e.competitors.find(c => c.homeAway === 'home') || e.competitors[0];
+                    const away = e.competitors.find(c => c.homeAway === 'away') || e.competitors[1];
+
+                    const scoreStr = stat.state === 'pre' ? 'VS' : `${home.score} - ${away.score}`;
+
+                    return `
+                        <div class="row">
+                            <div class="label">${item.leagueName}</div>
+                            <div class="status" style="color: ${stat.state === 'in' ? '#ff5252' : '#00e676'}">
+                                ${stat.shortDetail}
+                            </div>
+                            <div class="match">
+                                <div class="tm h"><span>${home.displayName}</span><img src="${home.logo || ''}" class="logo" onerror="this.style.display='none'"></div>
+                                <div class="score">${scoreStr}</div>
+                                <div class="tm a"><img src="${away.logo || ''}" class="logo" onerror="this.style.display='none'"><span>${away.displayName}</span></div>
+                            </div>
+                        </div>`;
+                }).join('');
+
+            } catch (err) {
+                console.error("Failed to fetch main events:", err);
+            }
         }
+
         getStats();
         setInterval(getStats, 60000);
     </script>

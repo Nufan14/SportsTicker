@@ -15,10 +15,20 @@
         .team-box.away { justify-content: flex-start; text-align: left; }
         .row-score { font-weight: 800; background: #eee; padding: 4px 12px; border-radius: 4px; margin: 0 15px; min-width: 50px; text-align: center; border: 1px solid #ddd; }
         img.team-logo { width: 22px; height: 22px; object-fit: contain; }
+        /* THE TV BUG: Stays in the corner regardless of game data */
+        .league-bug {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 80px; /* Adjust size as needed */
+            opacity: 0.15; /* Subtle enough for a basement TV */
+            z-index: 9999; /* Higher than everything else */
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
-    <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/nba.png" class="centered-logo">
+    <img src="https://a.espncdn.com/i/teamlogos/leagues/lrg/nba.png" class="league-bug">
     <div id="live-section"><div class="section-header">🏀 NBA Live Games</div><div id="liveGames"></div></div>
     <div class="columns-container">
         <div><div class="section-header">✅ Recent Results</div><div id="finishedGames"></div></div>
